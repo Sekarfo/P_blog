@@ -1,5 +1,3 @@
-Here is the complete description of your project in English, combining all details and insights:  
-
 ---
 
 # P_Blog  
@@ -140,10 +138,4 @@ The main goals of the platform are:
 
 ---
 
-## Target Audience  
 
-1. **Authors**: Create and manage articles, assign categories, and moderate comments.  
-2. **Administrators**: Oversee platform content, manage categories, and handle user interactions.  
-3. **Readers**: Browse and read articles, leave comments, and engage with the community.  
-
----
