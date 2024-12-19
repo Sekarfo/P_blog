@@ -147,21 +147,3 @@ The main goals of the platform are:
 3. **Readers**: Browse and read articles, leave comments, and engage with the community.  
 
 ---
-
-## Contributing  
-
-Contributions are welcome! Please fork the repository, create a feature branch, and submit a pull request.  
-
----
-
-## License  
-
-This project is licensed under the MIT License. See the LICENSE file for details.  
-
----
-
-## Acknowledgments  
-
-Special thanks to the Go and PostgreSQL communities for their excellent tools and documentation.  
-
----
