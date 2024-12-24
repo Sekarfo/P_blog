@@ -18,10 +18,6 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-// ===============================
-// CRUD Handlers
-// ===============================
-
 func CreateUser(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -32,7 +28,6 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Validate
 		if err := utils.ValidateUserInput(&user); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -102,7 +97,6 @@ func UpdateUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Validate
 		if err := utils.ValidateUserInput(&updatedData); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

@@ -19,7 +19,6 @@ func InitDB() *gorm.DB {
 }
 
 func MigrateDB(db *gorm.DB) {
-	// If you have multiple models, you can list them all here
-	// db.AutoMigrate(&models.User{}, &models.OtherModel{}, etc.)
+
 	fmt.Println("Database migrated successfully!")
 }
