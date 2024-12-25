@@ -12,7 +12,7 @@ import (
 func main() {
 	db := config.InitDB()
 
-	config.MigrateDB(db)
+	config.AutoMigrateDB(db)
 
 	router := routes.SetupRoutes(db)
 

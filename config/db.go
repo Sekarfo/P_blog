@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"personal_blog/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,7 +19,10 @@ func InitDB() *gorm.DB {
 	return db
 }
 
-func MigrateDB(db *gorm.DB) {
-
+func AutoMigrateDB(db *gorm.DB) {
+	err := db.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatal("Failed to migrate database:", err)
+	}
 	fmt.Println("Database migrated successfully!")
 }
