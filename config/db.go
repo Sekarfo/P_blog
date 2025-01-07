@@ -1,12 +1,13 @@
+// config/db.go
 package config
 
 import (
 	"fmt"
 	"log"
-	"personal_blog/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"personal_blog/models"
 )
 
 func InitDB() *gorm.DB {

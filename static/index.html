@@ -1,75 +1,71 @@
-<!-- static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>User Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 60%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #888;
-            padding: 8px 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 <h1>User Dashboard</h1>
-<button onclick="fetchUsers()">Load Users</button>
-<table id="usersTable">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Email</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Users will be populated here -->
-    </tbody>
-</table>
 
-<script>
-    function fetchUsers() {
-        fetch('/api/users')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#usersTable tbody');
-                tbody.innerHTML = ''; // Clear existing rows
+<!-- Create User Form -->
+<section>
+    <h2>Create New User</h2>
+    <form id="createUserForm">
+        <label for="createName">Name:</label>
+        <input type="text" id="createName" name="name" required>
+        <label for="createEmail">Email:</label>
+        <input type="email" id="createEmail" name="email" required>
+        <button type="submit">Create User</button>
+    </form>
+</section>
 
-                data.forEach(user => {
-                    const row = document.createElement('tr');
+<!-- Update User Form -->
+<section>
+    <h2>Update Existing User</h2>
+    <form id="updateUserForm">
+        <label for="updateId">User ID:</label>
+        <input type="number" id="updateId" name="id" required>
+        <label for="updateName">New Name:</label>
+        <input type="text" id="updateName" name="name">
+        <label for="updateEmail">New Email:</label>
+        <input type="email" id="updateEmail" name="email">
+        <button type="submit">Update User</button>
+    </form>
+</section>
 
-                    const idCell = document.createElement('td');
-                    idCell.textContent = user.id;
-                    row.appendChild(idCell);
+<!-- Find User by ID Form -->
+<section>
+    <h2>Find User by ID</h2>
+    <form id="findUserForm">
+        <label for="findId">User ID:</label>
+        <input type="number" id="findId" name="id" required>
+        <button type="submit">Find User</button>
+    </form>
+    <div id="findUserResult">
+        <!-- Retrieved user will be displayed here -->
+    </div>
+</section>
 
-                    const nameCell = document.createElement('td');
-                    nameCell.textContent = user.name;
-                    row.appendChild(nameCell);
+<!-- Users Table -->
+<section>
+    <h2>All Users</h2>
+    <button onclick="fetchUsers()">Refresh Users</button>
+    <table id="usersTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Users will be populated here -->
+        </tbody>
+    </table>
+</section>
 
-                    const emailCell = document.createElement('td');
-                    emailCell.textContent = user.email;
-                    row.appendChild(emailCell);
-
-                    tbody.appendChild(row);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching users:', error);
-            });
-    }
-</script>
+<script src="/static/script.js"></script>
 </body>
 </html>

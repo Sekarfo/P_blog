@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	_ "regexp"
 	"strconv"
 
@@ -134,11 +135,7 @@ func DeleteUser(db *gorm.DB) http.HandlerFunc {
 // ===============================
 func HomeHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(Response{
-			Status:  "success",
-			Message: "Welcome to the API!",
-		})
+		http.ServeFile(w, r, filepath.Join("static", "index.html"))
 	}
 }
 
