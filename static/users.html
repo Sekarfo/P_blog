@@ -3,77 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Blog - Home</title>
+    <title>Users - Personal Blog</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-<!-- Navigation Bar -->
-<header>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/blog">Blog</a></li>
-            <li><a href="/profile">My Profile</a></li>
-            <li><a href="/login">Login</a></li>
-        </ul>
-    </nav>
+<header class="header">
+    <div class="container">
+        <h1>Users</h1>
+        <nav class="navbar">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/users">Users</a></li>
+            </ul>
+        </nav>
+    </div>
 </header>
-
-<!-- Home Page Content -->
-<main>
-    <h1>Welcome to My Personal Blog!</h1>
-    <p>This is your space to explore posts, share your thoughts, and stay connected.</p>
-
-    <!-- Placeholder for Blog Highlights -->
-    <section>
-        <h2>Recent Blog Posts</h2>
-        <div id="recentPosts">
-            <p>Loading recent posts...</p>
+<main class="main-content">
+    <section class="intro">
+        <div class="container">
+            <h2>Users List</h2>
+            <p>This is the users page.</p>
         </div>
     </section>
 </main>
-
-<footer>
-    <p>&copy; 2025 My Personal Blog. All rights reserved.</p>
-</footer>
-
-<script src="/static/home.js"></script>
-</body>
-</html>
-
-<!-- Login Page -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-<!-- Login Form -->
-<main>
-    <h1>Login</h1>
-    <form id="loginForm" action="/login" method="POST">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="/signup">Sign up here</a>.</p>
-</main>
-
-<footer>
-    <p>&copy; 2025 My Personal Blog. All rights reserved.</p>
-</footer>
-
-<script src="/static/login.js"></script>
-
-
-
-
 </body>
 </html>

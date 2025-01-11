@@ -3,14 +3,18 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
 
-	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 	"personal_blog/models"
 	"personal_blog/utils"
+
+	"golang.org/x/crypto/bcrypt"
+
+	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 type Response struct {
@@ -22,17 +26,31 @@ type Response struct {
 func CreateUser(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		var user models.User
 
-		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		// Parse form data
+		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Invalid input", http.StatusBadRequest)
 			return
+		}
+
+		user := models.User{
+			Name:     r.FormValue("name"),
+			Email:    r.FormValue("email"),
+			Password: r.FormValue("password"),
 		}
 
 		if err := utils.ValidateUserInput(&user); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		// Hash the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Error hashing password", http.StatusInternalServerError)
+			return
+		}
+		user.Password = string(hashedPassword)
 
 		if result := db.Create(&user); result.Error != nil {
 			http.Error(w, result.Error.Error(), http.StatusInternalServerError)
@@ -41,6 +59,43 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(user)
+	}
+}
+
+// LoginUser handles user login.
+func LoginUser(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		r.ParseForm()
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		log.Println("Attempting login with email:", email)
+
+		var user models.User
+		if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+			log.Println("Email not found:", email)
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		log.Println("User found:", user)
+
+		// Compare password
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+			log.Println("Password mismatch for email:", email)
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		log.Println("Login successful for email:", email)
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(Response{
+			Status:  "success",
+			Message: "Login successful",
+		})
 	}
 }
 
@@ -170,9 +225,6 @@ func DeleteUser(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// ===============================
-// Misc Handlers
-// ===============================
 func HomeHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, filepath.Join("static", "home.html"))

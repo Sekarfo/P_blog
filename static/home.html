@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Personal Blog</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 <header class="header">
@@ -25,25 +25,35 @@
             <p>Welcome to my personal blog where I share my thoughts, ideas, and projects. Feel free to explore!</p>
         </div>
     </section>
-    <section class="posts">
+    <section class="login">
         <div class="container">
-            <h2>Recent Posts</h2>
-            <div class="post-preview">
-                <h3>Post Title</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Read more</a></p>
-            </div>
-            <div class="post-preview">
-                <h3>Post Title</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#">Read more</a></p>
-            </div>
+            <h2>Login</h2>
+            <form action="/login" method="POST">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Login</button>
+            </form>
         </div>
     </section>
+    <section class="register">
+        <div class="container">
+            <h2>Register</h2>
+            <form action="/register" method="POST">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    </section>
+    <section class="posts">
+        <!-- Add content for posts here -->
+    </section>
 </main>
-<footer class="footer">
-    <div class="container">
-        <p>&copy; 2025 My Personal Blog. All rights reserved.</p>
-    </div>
-</footer>
-<script src="script.js"></script>
 </body>
 </html>
