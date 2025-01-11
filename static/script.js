@@ -1,13 +1,81 @@
-// static/script.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize forms
     document.getElementById('createUserForm').addEventListener('submit', createUser);
     document.getElementById('updateUserForm').addEventListener('submit', updateUser);
     document.getElementById('findUserForm').addEventListener('submit', findUserById);
+    fetchUsers();
 });
 
-// Function to create a new user
+let usersPerPage = 5;
+let currentPage = 1;
+let filteredUsers = [];
+
+// Fetch all users and initialize pagination
+function fetchUsers() {
+    fetch('/api/users')
+        .then(response => response.json())
+        .then(users => {
+            filteredUsers = users;
+            displayUsers();
+        })
+        .catch(error => console.error('Error fetching users:', error));
+}
+
+// Display users with pagination
+function displayUsers() {
+    const startIndex = (currentPage - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+    const usersToShow = filteredUsers.slice(startIndex, endIndex);
+
+    const tbody = document.querySelector('#usersTable tbody');
+    tbody.innerHTML = '';
+
+    usersToShow.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td><button onclick="deleteUser(${user.id})">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    setupPagination();
+}
+
+// Setup pagination buttons
+function setupPagination() {
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const paginationDiv = document.getElementById('pagination');
+    paginationDiv.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        button.className = (i === currentPage) ? 'active' : '';
+        button.onclick = () => {
+            currentPage = i;
+            displayUsers();
+        };
+        paginationDiv.appendChild(button);
+    }
+}
+
+// Filter users by name
+function filterUsers() {
+    const filterValue = document.getElementById('filterName').value.toLowerCase();
+    fetch('/api/users')
+        .then(response => response.json())
+        .then(users => {
+            filteredUsers = users.filter(user => user.name.toLowerCase().includes(filterValue));
+            currentPage = 1;
+            displayUsers();
+        })
+        .catch(error => console.error('Error filtering users:', error));
+}
+
+// Remaining functions: createUser, updateUser, findUserById, deleteUser
+// (These functions stay as you provided)
 function createUser(event) {
     event.preventDefault(); // Prevent form from submitting the traditional way
 
@@ -109,7 +177,6 @@ function findUserById(event) {
         });
 }
 
-// Function to display the found user in the findUserResult div
 function displayFindUserResult(user, error = null) {
     const resultDiv = document.getElementById('findUserResult');
     resultDiv.innerHTML = ''; // Clear previous results
@@ -143,51 +210,8 @@ function displayFindUserResult(user, error = null) {
     }
 }
 
-// Function to fetch and display all users
-function fetchUsers() {
-    fetch('/api/users')
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = ''; // Clear existing rows
 
-            data.forEach(user => {
-                const row = document.createElement('tr');
 
-                // ID
-                const idCell = document.createElement('td');
-                idCell.textContent = user.id;
-                row.appendChild(idCell);
-
-                // Name
-                const nameCell = document.createElement('td');
-                nameCell.textContent = user.name;
-                row.appendChild(nameCell);
-
-                // Email
-                const emailCell = document.createElement('td');
-                emailCell.textContent = user.email;
-                row.appendChild(emailCell);
-
-                // Actions (Delete Button)
-                const actionsCell = document.createElement('td');
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.classList.add('actions-button');
-                deleteButton.onclick = () => deleteUser(user.id);
-                actionsCell.appendChild(deleteButton);
-                row.appendChild(actionsCell);
-
-                tbody.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching users:', error);
-            alert('Failed to fetch users.');
-        });
-}
-
-// Function to delete a user
 function deleteUser(id) {
     if (!confirm(`Are you sure you want to delete user with ID: ${id}?`)) {
         return;
@@ -208,3 +232,4 @@ function deleteUser(id) {
             alert(`Error: ${error.message}`);
         });
 }
+

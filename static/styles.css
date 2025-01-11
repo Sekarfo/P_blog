@@ -1,73 +1,116 @@
+/* styles.css */
 
+/* General styles */
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-}
-
-h1, h2 {
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
     color: #333;
+    line-height: 1.6;
 }
 
-section {
-    margin-bottom: 40px;
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-form {
+header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    text-align: center;
+    margin: 0;
+}
+
+.navbar ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar li {
+    margin: 0 1rem;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+.main-content {
+    padding: 2rem 0;
+}
+
+.intro, .posts, .profile-info, .update-profile {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.posts .post-preview {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1rem;
+}
+
+.profile-pic {
+    display: block;
+    max-width: 150px;
+    margin: 1rem auto;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form {
     display: flex;
     flex-direction: column;
-    max-width: 400px;
 }
 
-label {
-    margin-top: 10px;
+.form label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
 }
 
-input {
-    padding: 8px;
-    margin-top: 5px;
+.form input {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    font-size: 1rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
 }
 
-button {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #28a745;
-    color: white;
+.form button {
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: #fff;
+    background: #333;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #218838;
+.form button:hover {
+    background: #555;
 }
 
-table {
-    border-collapse: collapse;
-    width: 80%;
-    margin-top: 20px;
-}
-
-th, td {
-    border: 1px solid #888;
-    padding: 8px 12px;
-    text-align: left;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-.actions-button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.actions-button:hover {
-    background-color: #c82333;
+footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
 }

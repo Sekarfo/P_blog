@@ -18,7 +18,7 @@ func SetupRoutes(db *gorm.DB) *mux.Router {
 	router.HandleFunc("/api/users/{id}", controllers.UpdateUser(db)).Methods("PUT")
 	router.HandleFunc("/api/users/{id}", controllers.DeleteUser(db)).Methods("DELETE")
 
-	// Home route serving index.html
+	// Home route serving users.html
 	router.HandleFunc("/", controllers.HomeHandler()).Methods("GET")
 
 	// JSON parse route

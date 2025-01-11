@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Personal Blog</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="header">
+  <div class="container">
+    <h1>My Profile</h1>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/profile">Profile</a></li>
+        <li><a href="/users">Users</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main class="main-content">
+  <section class="profile-info">
+    <div class="container">
+      <h2>Your Information</h2>
+      <img src="/static/profile-placeholder.png" alt="Profile Picture" class="profile-pic">
+      <p><strong>Name:</strong> John Doe</p>
+      <p><strong>Email:</strong> john.doe@example.com</p>
+    </div>
+  </section>
+  <section class="update-profile">
+    <div class="container">
+      <h2>Update Your Details</h2>
+      <form id="update-profile-form" class="form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Update</button>
+      </form>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2025 My Personal Blog. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
