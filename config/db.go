@@ -1,8 +1,8 @@
 package config
 
 import (
-	"fmt"
-	"log"
+	
+	log "github.com/sirupsen/logrus"
 	"personal_blog/models"
 
 	"gorm.io/driver/postgres"
@@ -10,40 +10,50 @@ import (
 )
 
 func InitDB() *gorm.DB {
-	dsn := "host=localhost user=postgres password=0000 dbname=postgres port=5433 sslmode=disable TimeZone=Asia/Almaty"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
-	}
-	fmt.Println("Database connected successfully!")
-	return db
+    dsn := "host=localhost user=postgres password=0000 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Almaty"
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    if err != nil {
+        log.WithFields(log.Fields{
+            "dsn": dsn,
+        }).Fatal("Failed to connect to database:", err)
+    }
+    log.Info("Database connected successfully!")
+    return db
 }
 
 func AutoMigrateDB(db *gorm.DB) {
-	// Check if the unique constraint exists before adding it
-	var exists bool
-	err := db.Raw(`
+    var exists bool
+    err := db.Raw(`
         SELECT EXISTS (
             SELECT 1
             FROM pg_constraint
             WHERE conname = 'uni_users_email'
         );
     `).Scan(&exists).Error
-	if err != nil {
-		log.Fatal("Failed to check for unique constraint:", err)
-	}
+    if err != nil {
+        log.WithFields(log.Fields{
+            "error": err,
+        }).Fatal("Failed to check for unique constraint")
+    }
 
-	if !exists {
-		err = db.Exec("ALTER TABLE users ADD CONSTRAINT uni_users_email UNIQUE (email)").Error
-		if err != nil {
-			log.Fatal("Failed to add unique constraint:", err)
-		}
-	}
+    if (!exists) {
+        err = db.Exec("ALTER TABLE users ADD CONSTRAINT uni_users_email UNIQUE (email)").Error
+        if err != nil {
+            log.WithFields(log.Fields{
+                "error": err,
+            }).Fatal("Failed to add unique constraint")
+        } else {
+            log.Info("Unique constraint 'uni_users_email' added successfully")
+        }
+    } else {
+        log.Info("Unique constraint 'uni_users_email' already exists")
+    }
 
-	// Perform the migration
-	err = db.AutoMigrate(&models.User{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
-	}
-	fmt.Println("Database migrated successfully!")
+    err = db.AutoMigrate(&models.User{})
+    if err != nil {
+        log.WithFields(log.Fields{
+            "error": err,
+        }).Fatal("Failed to migrate database")
+    }
+    log.Info("Database migrated successfully!")
 }

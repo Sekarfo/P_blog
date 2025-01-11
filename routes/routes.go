@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"path/filepath"
 	"personal_blog/controllers"
@@ -46,10 +46,13 @@ func SetupRoutes(db *gorm.DB) *mux.Router {
 }
 
 func HomeHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Serving home.html")
+    return func(w http.ResponseWriter, r *http.Request) {
+		log.WithFields(log.Fields{
+			"method": r.Method,
+			"url":    r.URL.Path,
+		}).Info("Serving home.html")
 		http.ServeFile(w, r, filepath.Join("static", "home.html"))
-	}
+    }
 }
 func ProfileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

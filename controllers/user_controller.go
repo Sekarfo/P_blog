@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -24,42 +24,57 @@ type Response struct {
 
 // CreateUser handles the creation of a new user.
 func CreateUser(db *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+    return func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
 
-		// Parse form data
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
-			return
-		}
+        if err := r.ParseForm(); err != nil {
+            log.WithFields(log.Fields{
+                "error": err,
+            }).Error("Invalid input")
+            http.Error(w, "Invalid input", http.StatusBadRequest)
+            return
+        }
 
-		user := models.User{
-			Name:     r.FormValue("name"),
-			Email:    r.FormValue("email"),
-			Password: r.FormValue("password"),
-		}
+        user := models.User{
+            Name:     r.FormValue("name"),
+            Email:    r.FormValue("email"),
+            Password: r.FormValue("password"),
+        }
 
-		if err := utils.ValidateUserInput(&user); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+        if err := utils.ValidateUserInput(&user); err != nil {
+            log.WithFields(log.Fields{
+                "user": user,
+                "error": err,
+            }).Error("Validation failed")
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
 
-		// Hash the password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-		if err != nil {
-			http.Error(w, "Error hashing password", http.StatusInternalServerError)
-			return
-		}
-		user.Password = string(hashedPassword)
+        hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+        if err != nil {
+            log.WithFields(log.Fields{
+                "error": err,
+            }).Error("Error hashing password")
+            http.Error(w, "Error hashing password", http.StatusInternalServerError)
+            return
+        }
+        user.Password = string(hashedPassword)
 
-		if result := db.Create(&user); result.Error != nil {
-			http.Error(w, result.Error.Error(), http.StatusInternalServerError)
-			return
-		}
+        if result := db.Create(&user); result.Error != nil {
+            log.WithFields(log.Fields{
+                "user": user,
+                "error": result.Error,
+            }).Error("Failed to create user")
+            http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+            return
+        }
 
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(user)
-	}
+        log.WithFields(log.Fields{
+            "user": user,
+        }).Info("User created successfully")
+        w.WriteHeader(http.StatusCreated)
+        json.NewEncoder(w).Encode(user)
+    }
 }
 
 // LoginUser handles user login.

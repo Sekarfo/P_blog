@@ -1,0 +1,28 @@
+{"level":"info","msg":"Database connected successfully!","time":"2025-01-12T03:07:06+05:00"}
+{"level":"info","msg":"Unique constraint 'uni_users_email' added successfully","time":"2025-01-12T03:07:06+05:00"}
+{"level":"info","msg":"Database migrated successfully!","time":"2025-01-12T03:07:06+05:00"}
+{"level":"info","msg":"Server is running on http://localhost:8080","time":"2025-01-12T03:07:06+05:00"}
+{"level":"info","msg":"Database connected successfully!","time":"2025-01-12T03:16:27+05:00"}
+{"level":"info","msg":"Unique constraint 'uni_users_email' added successfully","time":"2025-01-12T03:16:27+05:00"}
+{"level":"info","msg":"Database migrated successfully!","time":"2025-01-12T03:16:27+05:00"}
+{"level":"info","msg":"Server is running on http://localhost:8080","time":"2025-01-12T03:16:27+05:00"}
+{"level":"info","msg":"Database connected successfully!","time":"2025-01-12T03:16:48+05:00"}
+{"level":"info","msg":"Unique constraint 'uni_users_email' added successfully","time":"2025-01-12T03:16:48+05:00"}
+{"level":"info","msg":"Database migrated successfully!","time":"2025-01-12T03:16:48+05:00"}
+{"level":"info","msg":"Server is running on http://localhost:8080","time":"2025-01-12T03:16:48+05:00"}
+{"level":"info","msg":"Database connected successfully!","time":"2025-01-12T03:17:22+05:00"}
+{"level":"info","msg":"Unique constraint 'uni_users_email' added successfully","time":"2025-01-12T03:17:22+05:00"}
+{"level":"info","msg":"Database migrated successfully!","time":"2025-01-12T03:17:22+05:00"}
+{"level":"info","msg":"Server is running on http://localhost:8080","time":"2025-01-12T03:17:22+05:00"}
+{"level":"info","msg":"Database connected successfully!","time":"2025-01-12T03:19:43+05:00"}
+{"level":"info","msg":"Unique constraint 'uni_users_email' added successfully","time":"2025-01-12T03:19:43+05:00"}
+{"level":"info","msg":"Database migrated successfully!","time":"2025-01-12T03:19:43+05:00"}
+{"level":"info","msg":"Server is running on http://localhost:8080","time":"2025-01-12T03:19:43+05:00"}
+{"level":"info","msg":"Serving users.html","time":"2025-01-12T03:19:56+05:00"}
+{"level":"info","msg":"Serving users.html","time":"2025-01-12T03:19:57+05:00"}
+{"level":"info","msg":"Serving users.html","time":"2025-01-12T03:19:58+05:00"}
+{"level":"info","msg":"Serving users.html","time":"2025-01-12T03:19:58+05:00"}
+{"level":"info","msg":"Serving profile.html","time":"2025-01-12T03:20:08+05:00"}
+{"level":"info","msg":"Attempting login with email: ansar@gmail.com","time":"2025-01-12T03:20:22+05:00"}
+{"level":"info","msg":"User found: {3 Ansar ansar@gmail.com $2a$10$8/87p14pxLQ0GGwwcyLn4em02P52imYVT67fWIBCqb4CCXxaKt82S}","time":"2025-01-12T03:20:22+05:00"}
+{"level":"info","msg":"Login successful for email: ansar@gmail.com","time":"2025-01-12T03:20:22+05:00"}

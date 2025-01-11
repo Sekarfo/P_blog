@@ -16,7 +16,7 @@ func init() {
 
     // Create log file
     file, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-    if err == nil {
+    if (err == nil) {
         log.SetOutput(file)
     } else {
         log.Info("Failed to log to file, using default stderr")
@@ -30,5 +30,4 @@ func main() {
 
     log.Info("Server is running on http://localhost:8080")
     log.Fatal(http.ListenAndServe(":8080", router))
-	
 }
