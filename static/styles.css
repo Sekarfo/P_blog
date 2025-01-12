@@ -117,23 +117,100 @@ footer {
 
 /* ARTICLES */
 
+/* Minimalistic styles for articles section */
+.articles {
+    padding: 2rem 0;
+}
+
+.articles .container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.articles h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.filters input,
+.filters select,
+.filters button {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 0.5rem;
+}
+
+.filters button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    background-color: #555;
+}
+
 .article {
     border: 1px solid #ddd;
-    padding: 16px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .article h3 {
     margin-top: 0;
+    font-size: 1.5rem;
+    color: #333;
 }
+
 .article p {
-    margin: 8px 0;
+    margin: 0.5rem 0;
+    color: #666;
 }
+
 .article a {
     color: #007BFF;
     text-decoration: none;
 }
+
 .article a:hover {
     text-decoration: underline;
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+#pagination button {
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#pagination button.active {
+    background-color: #333;
+    color: #fff;
+}
+
+#pagination button:hover {
+    background-color: #555;
+    color: #fff;
 }
