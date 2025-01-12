@@ -21,10 +21,38 @@
 <main class="main-content">
     <section class="intro">
         <div class="container">
-            <h2>About This Blog</h2>
-            <p>Welcome to my personal blog where I share my thoughts, ideas, and projects. Feel free to explore!</p>
+            <h2>About</h2>
+            <p>description</p>
         </div>
     </section>
+    
+    <section class="articles">
+        <div class="container">
+            <h2>LATEST NEWS</h2>
+            <div class="filters">
+                <input type="text" id="query" placeholder="Search articles...">
+                <select id="sortBy">
+                    <option value="relevancy">Relevancy</option>
+                    <option value="popularity">Popularity</option>
+                    <option value="publishedAt">Date</option>
+                </select>
+                <select id="pageSize">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+                <select id="language">
+                    <option value="en">English</option>
+                    <option value="ru">Russian</option>
+                    <option value="es">Spanish</option>
+                </select>
+                <button onclick="fetchAndDisplayArticles()">Search</button>
+            </div>
+            <div id="articles"></div>
+            <div id="pagination"></div>
+        </div>
+    </section>
+    
     <section class="login">
         <div class="container">
             <h2>Login</h2>
@@ -55,5 +83,6 @@
         <!-- Add content for posts here -->
     </section>
 </main>
+<script src="/static/script.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ import (
 )
 
 func InitDB() *gorm.DB {
+<<<<<<< Updated upstream
     dsn := "host=localhost user=postgres password=0000 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Almaty"
     db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
@@ -19,6 +20,15 @@ func InitDB() *gorm.DB {
     }
     log.Info("Database connected successfully!")
     return db
+=======
+	dsn := "host=localhost user=postgres password=postgres dbname=ap_blog port=5432 sslmode=disable TimeZone=Asia/Almaty"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	fmt.Println("Database connected successfully!")
+	return db
+>>>>>>> Stashed changes
 }
 
 func AutoMigrateDB(db *gorm.DB) {

@@ -5,8 +5,13 @@ import (
 	"net/http"
 	"path/filepath"
 	"personal_blog/controllers"
+	"personal_blog/controllers/articles"
+	"personal_blog/controllers/users"
+	"personal_blog/middleware"
+	"time"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
 
@@ -38,6 +43,9 @@ func SetupRoutes(db *gorm.DB) *mux.Router {
 	// JSON parse route
 	router.HandleFunc("/api/message", controllers.JSONMessageHandler()).Methods("POST", "GET")
 
+	// Articles route
+	router.HandleFunc("/api/articles", controllers.FetchArticles()).Methods("GET")
+
 	// Serve static files from /static/
 	staticDir := http.Dir("./static/")
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(staticDir)))
@@ -66,4 +74,42 @@ func UsersHandler() http.HandlerFunc {
 		log.Println("Serving users.html")
 		http.ServeFile(w, r, filepath.Join("static", "users.html"))
 	}
+}
+
+// By svdness.LXR371
+func SetupRouter2(
+	usersC *users.Controller,
+	articlesC *articles.Controller,
+) *mux.Router {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/api/users", usersC.CreateUser).Methods("POST")
+	router.HandleFunc("/api/users", usersC.GetByParams).Methods("GET")
+	router.HandleFunc("/api/users/{id}", usersC.GetUserByID).Methods("GET")
+	router.HandleFunc("/api/users/{id}", usersC.UpdateUser).Methods("PUT")
+	router.HandleFunc("/api/users/{id}", usersC.DeleteUser).Methods("DELETE")
+
+	router.HandleFunc("/api/articles", articlesC.FetchArticles).Methods("GET")
+
+	staticDir := http.Dir("./static/")
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(staticDir)))
+
+	// Home route serving home.html
+	router.HandleFunc("/", controllers.HomeHandler()).Methods("GET")
+
+	// Profile route serving profile.html
+	router.HandleFunc("/profile", ProfileHandler()).Methods("GET")
+
+	// Users route serving users.html
+	router.HandleFunc("/users", UsersHandler()).Methods("GET")
+
+	return router
+}
+
+func AcceptMiddlewares(h http.Handler) http.Handler {
+	h = middleware.LoggerMiddlware(h)
+	// Middlewares
+	limiter := middleware.NewRateLimiter(rate.Every(1*time.Second), 5)
+	h = limiter.Limit(h)
+	return h
 }

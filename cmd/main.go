@@ -1,6 +1,7 @@
 package main
 
 import (
+<<<<<<< Updated upstream
     "net/http"
     "os"
 
@@ -21,6 +22,22 @@ func init() {
     } else {
         log.Info("Failed to log to file, using default stderr")
     }
+=======
+	"log"
+	"personal_blog/app"
+)
+
+func main() {
+	app, err := app.NewApp()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+>>>>>>> Stashed changes
 }
 
 func main() {

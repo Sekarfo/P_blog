@@ -22,6 +22,14 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+func FetchArticles() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(struct{}{})
+	}
+}
+
+/*
 // CreateUser handles the creation of a new user.
 func CreateUser(db *gorm.DB) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +49,7 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
             Password: r.FormValue("password"),
         }
 
+<<<<<<< Updated upstream
         if err := utils.ValidateUserInput(&user); err != nil {
             log.WithFields(log.Fields{
                 "user": user,
@@ -68,6 +77,10 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
             http.Error(w, result.Error.Error(), http.StatusInternalServerError)
             return
         }
+=======
+		// Send to service
+		createdUser, err :=
+>>>>>>> Stashed changes
 
         log.WithFields(log.Fields{
             "user": user,
@@ -75,6 +88,13 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
         w.WriteHeader(http.StatusCreated)
         json.NewEncoder(w).Encode(user)
     }
+}
+*/
+
+func CreateUser(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// mock
+	}
 }
 
 // LoginUser handles user login.

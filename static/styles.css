@@ -114,3 +114,26 @@ footer {
     padding: 1rem 0;
     margin-top: 2rem;
 }
+
+/* ARTICLES */
+
+.article {
+    border: 1px solid #ddd;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+.article h3 {
+    margin-top: 0;
+}
+.article p {
+    margin: 8px 0;
+}
+.article a {
+    color: #007BFF;
+    text-decoration: none;
+}
+.article a:hover {
+    text-decoration: underline;
+}
