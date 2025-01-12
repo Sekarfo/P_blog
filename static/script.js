@@ -15,7 +15,6 @@ function fetchAndDisplayArticles(page = 1) {
     const sortBy = document.getElementById('sortBy').value || 'relevancy'; // Default sort by
     const pageSize = document.getElementById('pageSize').value || 5; // Default page size
     const language = document.getElementById('language').value || 'en'; // Default language
-
     const url = `/api/articles?q=${query}&sortBy=${sortBy}&pageSize=${pageSize}&page=${page}&language=${language}`;
 
     fetch(url)
@@ -27,6 +26,11 @@ function fetchAndDisplayArticles(page = 1) {
                 return;
             }
             articlesDiv.innerHTML = ''; // Clear previous articles
+
+            // Display total results
+            const totalResultsElement = document.createElement('p');
+            totalResultsElement.textContent = `Total Results: ${data.Total}`;
+            articlesDiv.appendChild(totalResultsElement);
 
             data.articles.forEach(article => {
                 const articleElement = document.createElement('div');
@@ -42,7 +46,7 @@ function fetchAndDisplayArticles(page = 1) {
             });
 
             // Update pagination
-            updatePagination(page, pageSize, data.totalResults);
+            updatePagination(page, pageSize, data.Total);
         })
         .catch(error => console.error('Error fetching articles:', error));
 }

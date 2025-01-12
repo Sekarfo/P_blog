@@ -76,6 +76,6 @@ func (c *Controller) FetchArticles(w http.ResponseWriter, r *http.Request) {
 
 type outResponse struct {
 	Status   string           `json:"status"`
-	Total    int              `json:"total"`
+	Total    int              `json:"totalResults"`
 	Articles []models.Article `json:"articles"`
 }
