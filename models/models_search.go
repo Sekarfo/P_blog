@@ -5,6 +5,7 @@ import "errors"
 type ArticleSearch struct {
 	Query    string             `json:"q"`
 	SortBy   ArticleSeachSortBy `json:"sortBy"`
+	Language string             `json:"language"`
 	PageSize int                `json:"pageSize"`
 	Page     int                `json:"page"`
 }

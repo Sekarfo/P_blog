@@ -1,6 +1,6 @@
 package users
 
-import "personal_blog/models"
+import "github.com/Sekarfo/P_blog/models"
 
 type UsersService interface {
 	CreateUser(user *models.User) (*models.User, error)

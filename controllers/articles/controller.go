@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"personal_blog/models"
-	articlesS "personal_blog/services/articles"
 	"strconv"
+
+	"github.com/Sekarfo/P_blog/models"
+
+	articlesS "github.com/Sekarfo/P_blog/services/articles"
 )
 
 type Controller struct {
@@ -48,6 +50,10 @@ func (c *Controller) FetchArticles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		params.Page = page
+	}
+	if r.URL.Query().Has("language") {
+		language := r.URL.Query().Get("language")
+		params.Language = language
 	}
 
 	articles, total, err := c.articleService.GetArticles(params)

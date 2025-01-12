@@ -2,8 +2,10 @@ package users
 
 import (
 	"errors"
-	"personal_blog/models"
-	"personal_blog/utils"
+
+	"github.com/Sekarfo/P_blog/utils"
+
+	"github.com/Sekarfo/P_blog/models"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"

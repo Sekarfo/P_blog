@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"personal_blog/models"
+
+	"github.com/Sekarfo/P_blog/models"
 )
 
 const (
@@ -50,5 +51,5 @@ func (a *articleSearcher) GetArticles(
 		return nil, 0, err
 	}
 
-	return newsResponse.Articles, 0, nil
+	return newsResponse.Articles, newsResponse.TotalResults, nil
 }

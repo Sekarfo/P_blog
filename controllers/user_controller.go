@@ -3,13 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"path/filepath"
 	"strconv"
 
-	"personal_blog/models"
-	"personal_blog/utils"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/Sekarfo/P_blog/models"
+	"github.com/Sekarfo/P_blog/utils"
 
 	"golang.org/x/crypto/bcrypt"
 

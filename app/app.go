@@ -2,12 +2,18 @@ package app
 
 import (
 	"net/http"
-	"personal_blog/config"
-	articlesC "personal_blog/controllers/articles"
-	usersC "personal_blog/controllers/users"
-	"personal_blog/routes"
-	articlesS "personal_blog/services/articles"
-	usersS "personal_blog/services/users"
+
+	usersS "github.com/Sekarfo/P_blog/services/users"
+
+	"github.com/Sekarfo/P_blog/routes"
+
+	"github.com/Sekarfo/P_blog/config"
+
+	articlesC "github.com/Sekarfo/P_blog/controllers/articles"
+
+	usersC "github.com/Sekarfo/P_blog/controllers/users"
+
+	articlesS "github.com/Sekarfo/P_blog/services/articles"
 
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"

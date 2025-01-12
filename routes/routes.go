@@ -1,14 +1,15 @@
 package routes
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"path/filepath"
-	"personal_blog/controllers"
-	"personal_blog/controllers/articles"
-	"personal_blog/controllers/users"
-	"personal_blog/middleware"
 	"time"
+
+	"github.com/Sekarfo/P_blog/controllers"
+	"github.com/Sekarfo/P_blog/controllers/articles"
+	"github.com/Sekarfo/P_blog/controllers/users"
+	"github.com/Sekarfo/P_blog/middleware"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 	"golang.org/x/time/rate"
@@ -54,13 +55,13 @@ func SetupRoutes(db *gorm.DB) *mux.Router {
 }
 
 func HomeHandler() http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{
 			"method": r.Method,
 			"url":    r.URL.Path,
 		}).Info("Serving home.html")
 		http.ServeFile(w, r, filepath.Join("static", "home.html"))
-    }
+	}
 }
 func ProfileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

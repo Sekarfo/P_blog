@@ -2,8 +2,9 @@ package articles
 
 import (
 	"net/url"
-	"personal_blog/models"
 	"strconv"
+
+	"github.com/Sekarfo/P_blog/models"
 )
 
 type toNewsAPIReq struct {
@@ -18,6 +19,7 @@ func (r *toNewsAPIReq) toQueryParams() string {
 	values.Set("pageSize", strconv.Itoa(r.PageSize))
 	values.Set("page", strconv.Itoa(r.Page))
 	values.Set("apiKey", r.ApiKey)
+	values.Set("language", r.Language)
 
 	return "?" + values.Encode()
 }

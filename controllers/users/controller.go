@@ -3,9 +3,11 @@ package users
 import (
 	"encoding/json"
 	"net/http"
-	"personal_blog/models"
-	"personal_blog/services/users"
 	"strconv"
+
+	"github.com/Sekarfo/P_blog/models"
+
+	"github.com/Sekarfo/P_blog/services/users"
 
 	"github.com/gorilla/mux"
 )
