@@ -22,8 +22,8 @@ type SearchParams struct {
 type SortBy string
 
 const (
-	SortByAsc  = "asc"
-	SortByDesc = "desc"
+	SortByAsc  SortBy = "asc"
+	SortByDesc SortBy = "desc"
 )
 
 func SortByFromString(s string) SortBy {
