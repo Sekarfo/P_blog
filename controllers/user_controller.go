@@ -3,13 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"path/filepath"
 	"strconv"
 
-	"personal_blog/models"
-	"personal_blog/utils"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/Sekarfo/P_blog/models"
+	"github.com/Sekarfo/P_blog/utils"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -22,6 +23,14 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+func FetchArticles() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(struct{}{})
+	}
+}
+
+/*
 // CreateUser handles the creation of a new user.
 func CreateUser(db *gorm.DB) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +50,7 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
             Password: r.FormValue("password"),
         }
 
+<<<<<<< Updated upstream
         if err := utils.ValidateUserInput(&user); err != nil {
             log.WithFields(log.Fields{
                 "user": user,
@@ -68,6 +78,10 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
             http.Error(w, result.Error.Error(), http.StatusInternalServerError)
             return
         }
+=======
+		// Send to service
+		createdUser, err :=
+>>>>>>> Stashed changes
 
         log.WithFields(log.Fields{
             "user": user,
@@ -75,6 +89,40 @@ func CreateUser(db *gorm.DB) http.HandlerFunc {
         w.WriteHeader(http.StatusCreated)
         json.NewEncoder(w).Encode(user)
     }
+}
+*/
+
+func CreateUser(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var user models.User
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			http.Error(w, "Invalid input", http.StatusBadRequest)
+			return
+		}
+
+		if err := utils.ValidateUserInput(&user); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		// Hash password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Error hashing password", http.StatusInternalServerError)
+			return
+		}
+		user.Password = string(hashedPassword)
+
+		if result := db.Create(&user); result.Error != nil {
+			http.Error(w, "Failed to create user", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(user)
+	}
 }
 
 // LoginUser handles user login.

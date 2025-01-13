@@ -2,8 +2,9 @@ package utils
 
 import (
 	"fmt"
-	"personal_blog/models"
 	"regexp"
+
+	"github.com/Sekarfo/P_blog/models"
 )
 
 func ValidateUserInput(user *models.User) error {

@@ -1,6 +1,14 @@
 package main
 
 import (
+	"log"
+
+	"github.com/Sekarfo/P_blog/app"
+)
+
+/*
+import (
+<<<<<<< Updated upstream
     "net/http"
     "os"
 
@@ -21,14 +29,34 @@ func init() {
     } else {
         log.Info("Failed to log to file, using default stderr")
     }
-}
+=======
+	"log"
+	"personal_blog/app"
+)
 
 func main() {
-    db := config.InitDB()
-    config.AutoMigrateDB(db)
-    router := routes.SetupRoutes(db)
+	app, err := app.NewApp()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    log.Info("Server is running on http://localhost:8080")
-    log.Fatal(http.ListenAndServe(":8080", router))
-	
+	err = app.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+>>>>>>> Stashed changes
+}
+*/
+
+func main() {
+	app, err := app.NewApp()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
