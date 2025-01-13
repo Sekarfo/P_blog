@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -23,8 +24,8 @@
     <div class="container">
       <h2>Your Information</h2>
       <img src="/static/profile-placeholder.png" alt="Profile Picture" class="profile-pic">
-      <p><strong>Name:</strong> John Doe</p>
-      <p><strong>Email:</strong> john.doe@example.com</p>
+      <p><strong>Name:</strong> <span id="userName"></span></p>
+      <p><strong>Email:</strong> <span id="userEmail"></span></p>
     </div>
   </section>
   <section class="update-profile">
@@ -45,6 +46,22 @@
     <p>&copy; 2025 My Personal Blog. All rights reserved.</p>
   </div>
 </footer>
-<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/profile')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                window.location.href = '/';
+            }
+        })
+        .then(user => {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+        })
+        .catch(error => console.error('Error fetching profile:', error));
+});
+</script>
 </body>
 </html>

@@ -2,6 +2,7 @@ package users
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -10,7 +11,10 @@ import (
 	"github.com/Sekarfo/P_blog/services/users"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
+
+var store = sessions.NewCookieStore([]byte("super-secret-key"))
 
 type Controller struct {
 	usersService users.UsersService
@@ -54,14 +58,42 @@ func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
+	log.Println("Attempting login with email:", email)
+
 	// Send to service
 	user, err := c.usersService.LoginUser(email, password)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		log.Println("Invalid login attempt for email:", email)
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
+	log.Println("Login successful for email:", email)
+
+	// Create session
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		log.Println("Error getting session:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	session.Values["user_id"] = user.ID
+	session.Values["user_name"] = user.Name
+	session.Values["user_email"] = user.Email
+	err = session.Save(r, w)
+
+	if err != nil {
+		log.Println("Error saving session:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":  "success",
+		"message": "Login successful",
+	})
 }
 
 func (c *Controller) GetByParams(w http.ResponseWriter, r *http.Request) {
@@ -176,4 +208,31 @@ func (c *Controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (c *Controller) GetProfile(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		log.Println("Error getting session:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	userID, ok := session.Values["user_id"].(int)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := c.usersService.GetByID(userID)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Exclude sensitive information
+	user.Password = ""
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }

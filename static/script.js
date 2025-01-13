@@ -1,12 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayArticles();
-    /* document.getElementById('createUserForm').addEventListener('submit', createUser);
-    document.getElementById('updateUserForm').addEventListener('submit', updateUser);
-    document.getElementById('findUserForm').addEventListener('submit', findUserById);
-    fetchUsers(); */
-});
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        email: email,
+                        password: password,
+                    }),
+                    credentials: 'include', // Include cookies
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        window.location.href = '/profile'; // Redirect on success
+                    } else {
+                        alert(data.message || 'Invalid credentials');
+                    }
+                } else {
+                    alert('Invalid email or password');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during login');
+            }
+        });
+    }
+
     fetchAndDisplayArticles();
 });
 
