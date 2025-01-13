@@ -4,6 +4,7 @@ import "github.com/Sekarfo/P_blog/models"
 
 type UsersService interface {
 	CreateUser(user *models.User) (*models.User, error)
+	LoginUser(email, password string) (*models.User, error)
 	GetByParams(params *SearchParams) ([]models.User, error)
 	GetByID(userID int) (*models.User, error)
 	UpdateUser(user *models.User, updatedUserID int) (*models.User, error)

@@ -44,6 +44,26 @@ func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(createdUser)
 }
 
+func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+
+	// Send to service
+	user, err := c.usersService.LoginUser(email, password)
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
+}
+
 func (c *Controller) GetByParams(w http.ResponseWriter, r *http.Request) {
 	// Parse query params
 	params := users.SearchParams{}

@@ -100,3 +100,16 @@ func (s *service) DeleteUser(userID int) error {
 	}
 	return nil
 }
+
+func (s *service) LoginUser(email, password string) (*models.User, error) {
+	var user models.User
+	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	return &user, nil
+}

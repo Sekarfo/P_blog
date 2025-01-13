@@ -63,6 +63,7 @@ func HomeHandler() http.HandlerFunc {
 		http.ServeFile(w, r, filepath.Join("static", "home.html"))
 	}
 }
+
 func ProfileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Serving profile.html")
@@ -103,6 +104,12 @@ func SetupRouter2(
 
 	// Users route serving users.html
 	router.HandleFunc("/users", UsersHandler()).Methods("GET")
+
+	// Login route
+	router.HandleFunc("/login", usersC.LoginUser).Methods("POST")
+
+	// Register route
+	router.HandleFunc("/register", usersC.CreateUser).Methods("POST")
 
 	return router
 }
