@@ -2,6 +2,12 @@ package users
 
 import (
 	"errors"
+	"fmt"
+	"gopkg.in/gomail.v2"
+	"io"
+	"mime/multipart"
+	"os"
+	"strconv"
 
 	"github.com/Sekarfo/P_blog/utils"
 
@@ -76,22 +82,24 @@ func (s *service) GetByID(userID int) (*models.User, error) {
 	return &user, nil
 }
 
-func (s *service) UpdateUser(user *models.User, _ int) (*models.User, error) {
-	if err := utils.ValidateUserInput(user); err != nil {
-		return nil, err
-	}
-
-	// Hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+func (s *service) UpdateUser(user *models.User) (*models.User, error) {
+	existingUser, err := s.GetByID(int(user.ID))
 	if err != nil {
-		return nil, errors.New("Error hashing password")
-	}
-	user.Password = string(hashedPassword)
-
-	if err := s.db.Save(user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+
+	if user.Name != "" {
+		existingUser.Name = user.Name
+	}
+	if user.Email != "" {
+		existingUser.Email = user.Email
+	}
+
+	if err := s.db.Save(existingUser).Error; err != nil {
+		return nil, err
+	}
+
+	return existingUser, nil
 }
 
 func (s *service) DeleteUser(userID int) error {
@@ -112,4 +120,40 @@ func (s *service) LoginUser(email, password string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func SendSupportEmail(userID int, message string, handler *multipart.FileHeader, file multipart.File) error {
+	// Load email configuration from environment variables
+	fromEmail := os.Getenv("EMAIL_FROM")
+	toEmail := os.Getenv("EMAIL_TO")
+	smtpServer := os.Getenv("SMTP_SERVER")
+	smtpPort, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		return fmt.Errorf("invalid SMTP port: %v", err)
+	}
+	smtpUser := os.Getenv("SMTP_USER")
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+
+	// Create email message
+	email := gomail.NewMessage()
+	email.SetHeader("From", fromEmail)
+	email.SetHeader("To", toEmail)
+	email.SetHeader("Subject", fmt.Sprintf("Support Request from User ID: %d", userID))
+	email.SetBody("text/plain", message)
+
+	// Attach file if provided
+	if handler != nil && file != nil {
+		email.Attach(handler.Filename, gomail.SetCopyFunc(func(w io.Writer) error {
+			_, err := io.Copy(w, file)
+			return err
+		}))
+	}
+
+	// Send email
+	dialer := gomail.NewDialer(smtpServer, smtpPort, smtpUser, smtpPassword)
+	if err := dialer.DialAndSend(email); err != nil {
+		return fmt.Errorf("failed to send email: %v", err)
+	}
+
+	return nil
 }
