@@ -16,6 +16,7 @@ import (
 	articlesS "github.com/Sekarfo/P_blog/services/articles"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
@@ -32,6 +33,10 @@ type App struct {
 
 func NewApp() (*App, error) {
 	app := &App{}
+	err := app.initEnvs()
+	if err != nil {
+		return nil, err
+	}
 	db := config.InitDB()
 	app.gormDB = db
 
@@ -49,5 +54,9 @@ func NewApp() (*App, error) {
 }
 
 func (a *App) Run() error {
-	return http.ListenAndServe(":8080", a.httpH)
+	return http.ListenAndServe(":8081", a.httpH)
+}
+
+func (a *App) initEnvs() error {
+	return godotenv.Load()
 }

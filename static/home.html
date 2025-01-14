@@ -13,18 +13,11 @@
             <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/profile">Profile</a></li>
-                <li><a href="/users">Users</a></li>
             </ul>
         </nav>
     </div>
 </header>
 <main class="main-content">
-    <!-- <section class="intro">
-        <div class="container">
-            <h2>About</h2>
-            <p>description</p>
-        </div>
-    </section> -->
     
     <section class="articles">
         <div class="container">
@@ -56,7 +49,8 @@
     <section class="login">
         <div class="container">
             <h2>Login</h2>
-            <form action="/login" method="POST">
+            <form id="loginForm">
+                <!-- Remove any action or method attributes -->
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
                 <label for="password">Password:</label>
@@ -80,6 +74,6 @@
         </div>
     </section>
 </main>
-<script src="/static/script.js"></script>
+<script src="/static/script.js" type="application/javascript"></script>
 </body>
 </html>

@@ -7,8 +7,8 @@ type UsersService interface {
 	LoginUser(email, password string) (*models.User, error)
 	GetByParams(params *SearchParams) ([]models.User, error)
 	GetByID(userID int) (*models.User, error)
-	UpdateUser(user *models.User, updatedUserID int) (*models.User, error)
 	DeleteUser(userID int) error
+	UpdateUser(user *models.User) (*models.User, error)
 }
 
 type SearchParams struct {

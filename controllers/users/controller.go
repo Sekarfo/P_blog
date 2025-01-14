@@ -2,22 +2,28 @@ package users
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-
 	"github.com/Sekarfo/P_blog/models"
-
 	"github.com/Sekarfo/P_blog/services/users"
+	"log"
+	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
 
 type Controller struct {
-	usersService users.UsersService
+	sessionsStore *sessions.CookieStore
+	usersService  users.UsersService
 }
 
-func NewController(usersS users.UsersService) *Controller {
-	return &Controller{usersService: usersS}
+func NewController(
+	usersS users.UsersService,
+) *Controller {
+	storage := sessions.NewCookieStore([]byte(os.Getenv("SESSIONS_KEY")))
+	return &Controller{
+		sessionsStore: storage,
+		usersService:  usersS,
+	}
 }
 
 func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -54,126 +60,147 @@ func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
+	log.Println("Attempting login with email:", email)
+
 	// Send to service
 	user, err := c.usersService.LoginUser(email, password)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		log.Println("Invalid login attempt for email:", email)
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
+	log.Println("Login successful for email:", email)
+
+	// Create session
+	session := sessions.NewSession(c.sessionsStore, "session-name")
+	session.Values["user_id"] = user.ID
+	session.Values["user_name"] = user.Name
+	session.Values["user_email"] = user.Email
+	err = session.Save(r, w)
+
+	if err != nil {
+		log.Println("Error saving session:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":  "success",
+		"message": "Login successful",
+	})
 }
 
-func (c *Controller) GetByParams(w http.ResponseWriter, r *http.Request) {
-	// Parse query params
-	params := users.SearchParams{}
-	if r.URL.Query().Has("name") {
-		name := r.URL.Query().Get("name")
-		params.Name = &name
-	}
-	if r.URL.Query().Has("email") {
-		email := r.URL.Query().Get("email")
-		params.Email = &email
-	}
-	if r.URL.Query().Has("age") {
-		age, err := strconv.Atoi(r.URL.Query().Get("age"))
-		if err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
-			return
-		}
-		params.Age = &age
-	}
-	if r.URL.Query().Has("sortBy") {
-		sortBy := users.SortByFromString(
-			r.URL.Query().Get("sortBy"),
-		)
-		params.SortBy = &sortBy
-	}
-	if r.URL.Query().Has("limit") {
-		limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
-		if err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
-			return
-		}
-		params.Limit = &limit
-	}
-	if r.URL.Query().Has("offset") {
-		offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
-		if err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
-			return
-		}
-		params.Offset = &offset
-	}
-
-	// Send to service
-	users, err := c.usersService.GetByParams(&params)
+func (c *Controller) GetProfile(w http.ResponseWriter, r *http.Request) {
+	session, err := c.sessionsStore.Get(r, "session-name")
 	if err != nil {
-		http.Error(w, "Error getting users", http.StatusInternalServerError)
+		log.Println("Error getting session:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(users)
-}
-
-func (c *Controller) GetUserByID(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+	userID, ok := session.Values["user_id"].(uint)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	// Send to service
-	user, err := c.usersService.GetByID(id)
+	user, err := c.usersService.GetByID(int(userID))
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
+	// Exclude sensitive information
+	user.Password = ""
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
-func (c *Controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+func (c *Controller) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	session, err := c.sessionsStore.Get(r, "session-name")
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		log.Println("Error getting session:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	// Parse form data
-	if err := r.ParseForm(); err != nil {
+	userID, ok := session.Values["user_id"].(uint)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	user := models.User{
-		Name:     r.FormValue("name"),
-		Email:    r.FormValue("email"),
-		Password: r.FormValue("password"),
-	}
+	user.ID = userID
 
-	// Send to service
-	updatedUser, err := c.usersService.UpdateUser(&user, id)
+	updatedUser, err := c.usersService.UpdateUser(&user)
 	if err != nil {
-		http.Error(w, "Error updating user", http.StatusInternalServerError)
+		http.Error(w, "Error updating profile", http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(updatedUser)
 }
 
-func (c *Controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+func (c *Controller) SendSupportRequest(w http.ResponseWriter, r *http.Request) {
+	// Get user session
+	session, err := c.sessionsStore.Get(r, "session-name")
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		log.Printf("Error getting session: %v\n", err)
+		http.Error(w, "Failed to retrieve session. Please try again.", http.StatusInternalServerError)
 		return
 	}
 
-	// Send to service
-	if err := c.usersService.DeleteUser(id); err != nil {
-		http.Error(w, "Error deleting user", http.StatusInternalServerError)
+	// Validate user ID from session
+	userID, ok := session.Values["user_id"].(uint)
+	if !ok {
+		http.Error(w, "Unauthorized. Please log in.", http.StatusUnauthorized)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	// Parse multipart form
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Invalid form submission. Ensure fields are correct.", http.StatusBadRequest)
+		return
+	}
+
+	// Get form values
+	message := r.FormValue("message")
+	if message == "" {
+		http.Error(w, "Message field cannot be empty.", http.StatusBadRequest)
+		return
+	}
+
+	file, handler, err := r.FormFile("attachment")
+	if err != nil && err != http.ErrMissingFile {
+		log.Printf("Error reading file: %v\n", err)
+		http.Error(w, "Failed to read attachment.", http.StatusInternalServerError)
+		return
+	}
+	defer func() {
+		if file != nil {
+			file.Close()
+		}
+	}()
+
+	// Call email service to send the support request
+	err = users.SendSupportEmail(int(userID), message, handler, file)
+	if err != nil {
+		log.Printf("Error sending email: %v\n", err)
+		http.Error(w, "Failed to send support request. Please try again.", http.StatusInternalServerError)
+		return
+	}
+
+	// Success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Support request sent successfully."))
 }

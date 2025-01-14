@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,7 +14,6 @@
       <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/profile">Profile</a></li>
-        <li><a href="/users">Users</a></li>
       </ul>
     </nav>
   </div>
@@ -22,11 +22,11 @@
   <section class="profile-info">
     <div class="container">
       <h2>Your Information</h2>
-      <img src="/static/profile-placeholder.png" alt="Profile Picture" class="profile-pic">
-      <p><strong>Name:</strong> John Doe</p>
-      <p><strong>Email:</strong> john.doe@example.com</p>
+      <p><strong>Name:</strong> <span id="userName"></span></p>
+      <p><strong>Email:</strong> <span id="userEmail"></span></p>
     </div>
   </section>
+
   <section class="update-profile">
     <div class="container">
       <h2>Update Your Details</h2>
@@ -39,12 +39,84 @@
       </form>
     </div>
   </section>
+
+  <section class="support">
+    <div class="container">
+      <h2>Contact Support</h2>
+      <form id="support-form" class="form" enctype="multipart/form-data">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" placeholder="Enter your message" required></textarea>
+        <label for="attachment">Attachment:</label>
+        <input type="file" id="attachment" name="attachment">
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </section>
 </main>
 <footer class="footer">
   <div class="container">
     <p>&copy; 2025 My Personal Blog. All rights reserved.</p>
   </div>
 </footer>
-<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/profile')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                window.location.href = '/';
+            }
+        })
+        .then(user => {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+        })
+        .catch(error => console.error('Error fetching profile:', error));
+});
+
+document.getElementById('update-profile-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const data = {
+    name: formData.get('name'),
+    email: formData.get('email')
+  };
+
+  fetch('/api/profile', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+          .then(response => response.json())
+          .then(updatedUser => {
+            document.getElementById('userName').textContent = updatedUser.name;
+            document.getElementById('userEmail').textContent = updatedUser.email;
+          })
+          .catch(error => console.error('Error updating profile:', error));
+});
+
+document.getElementById('support-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+
+  fetch('/api/support', {
+    method: 'POST',
+    body: formData
+  })
+          .then(response => {
+            if (response.ok) {
+              alert('Support request sent successfully.');
+            } else {
+              alert('Failed to send support request.');
+            }
+          })
+          .catch(error => console.error('Error sending support request:', error));
+});
+</script>
 </body>
 </html>
