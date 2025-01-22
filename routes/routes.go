@@ -1,18 +1,17 @@
 package routes
 
 import (
+	"github.com/Sekarfo/P_blog/controllers/articles"
+	"github.com/Sekarfo/P_blog/controllers/users"
+	"github.com/Sekarfo/P_blog/middleware"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/Sekarfo/P_blog/controllers/articles"
-	"github.com/Sekarfo/P_blog/controllers/users"
-	"github.com/Sekarfo/P_blog/middleware"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gorilla/mux"
-	"golang.org/x/time/rate"
 )
 
 func HomeHandler() http.HandlerFunc {
@@ -83,8 +82,7 @@ func SetupRouter2(
 
 func AcceptMiddlewares(h http.Handler) http.Handler {
 	h = middleware.LoggerMiddlware(h)
-	// Middlewares
-	limiter := middleware.NewRateLimiter(rate.Every(1*time.Second), 5)
+	limiter := middleware.NewRateLimiter(rate.Every(1*time.Second), 2)
 	h = limiter.Limit(h)
 	return h
 }
