@@ -1,13 +1,17 @@
 package users
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
-	"gopkg.in/gomail.v2"
 	"io"
 	"mime/multipart"
 	"os"
 	"strconv"
+	"time"
+
+	"gopkg.in/gomail.v2"
 
 	"github.com/Sekarfo/P_blog/utils"
 
@@ -37,11 +41,60 @@ func (s *service) CreateUser(user *models.User) (*models.User, error) {
 	}
 	user.Password = string(hashedPassword)
 
+	// Generate email verification token
+	token, err := generateToken()
+	if err != nil {
+		return nil, errors.New("error generating verification token")
+	}
+	user.EmailVerifyToken = token
+	user.EmailVerifyExpiry = time.Now().Add(24 * time.Hour) // Token valid for 24 hours
+
 	createDBError := s.db.Create(user).Error
 	if createDBError != nil {
 		return nil, createDBError
 	}
+
+	// Send verification email
+	err = sendVerificationEmail(user.Email, token)
+	if err != nil {
+		return nil, errors.New("error sending verification email")
+	}
+
 	return user, nil
+}
+
+func generateToken() (string, error) {
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes), nil
+}
+
+func sendVerificationEmail(email, token string) error {
+	fromEmail := os.Getenv("EMAIL_FROM")
+	smtpServer := os.Getenv("SMTP_SERVER")
+	smtpPort, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		return fmt.Errorf("invalid SMTP port: %v", err)
+	}
+	smtpUser := os.Getenv("SMTP_USER")
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+
+	verificationURL := fmt.Sprintf("http://localhost:8081/verify-email?token=%s", token)
+
+	emailMessage := gomail.NewMessage()
+	emailMessage.SetHeader("From", fromEmail)
+	emailMessage.SetHeader("To", email)
+	emailMessage.SetHeader("Subject", "Email Verification")
+	emailMessage.SetBody("text/plain", fmt.Sprintf("Please verify your email by clicking the following link: %s", verificationURL))
+
+	dialer := gomail.NewDialer(smtpServer, smtpPort, smtpUser, smtpPassword)
+	if err := dialer.DialAndSend(emailMessage); err != nil {
+		return fmt.Errorf("failed to send email: %v", err)
+	}
+
+	return nil
 }
 
 func (s *service) GetByParams(params *SearchParams) ([]models.User, error) {
@@ -153,6 +206,27 @@ func SendSupportEmail(userID int, message string, handler *multipart.FileHeader,
 	dialer := gomail.NewDialer(smtpServer, smtpPort, smtpUser, smtpPassword)
 	if err := dialer.DialAndSend(email); err != nil {
 		return fmt.Errorf("failed to send email: %v", err)
+	}
+
+	return nil
+}
+
+func (s *service) VerifyEmail(token string) error {
+	var user models.User
+	if err := s.db.Where("email_verify_token = ?", token).First(&user).Error; err != nil {
+		return errors.New("invalid or expired token")
+	}
+
+	if time.Now().After(user.EmailVerifyExpiry) {
+		return errors.New("token expired")
+	}
+
+	user.EmailVerified = true
+	user.EmailVerifyToken = ""
+	user.EmailVerifyExpiry = time.Time{}
+
+	if err := s.db.Save(&user).Error; err != nil {
+		return err
 	}
 
 	return nil

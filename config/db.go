@@ -12,7 +12,7 @@ import (
 )
 
 func InitDB() *gorm.DB {
-	dsn := "host=localhost user=postgres password=postgres dbname=ap_blog port=5432 sslmode=disable TimeZone=Asia/Almaty"
+	dsn := "host=localhost user=postgres password=0000 dbname=postgres port=5433 sslmode=disable TimeZone=Asia/Almaty"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -49,7 +49,7 @@ func AutoMigrateDB(db *gorm.DB) {
 		log.Info("Unique constraint 'uni_users_email' already exists")
 	}
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.User{}, &models.Blog{}, &models.Commentary{})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

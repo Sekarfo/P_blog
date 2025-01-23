@@ -2,11 +2,12 @@ package users
 
 import (
 	"encoding/json"
-	"github.com/Sekarfo/P_blog/models"
-	"github.com/Sekarfo/P_blog/services/users"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/Sekarfo/P_blog/models"
+	"github.com/Sekarfo/P_blog/services/users"
 
 	"github.com/gorilla/sessions"
 )
@@ -203,4 +204,20 @@ func (c *Controller) SendSupportRequest(w http.ResponseWriter, r *http.Request) 
 	// Success response
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Support request sent successfully."))
+}
+
+func (c *Controller) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		http.Error(w, "Invalid token", http.StatusBadRequest)
+		return
+	}
+
+	err := c.usersService.VerifyEmail(token)
+	if err != nil {
+		http.Error(w, "Error verifying email", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/static/verify.html", http.StatusSeeOther)
 }

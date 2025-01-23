@@ -9,6 +9,7 @@ type UsersService interface {
 	GetByID(userID int) (*models.User, error)
 	DeleteUser(userID int) error
 	UpdateUser(user *models.User) (*models.User, error)
+	VerifyEmail(token string) error
 }
 
 type SearchParams struct {
