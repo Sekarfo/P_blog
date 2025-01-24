@@ -1,15 +1,17 @@
 package routes
 
 import (
-	"github.com/Sekarfo/P_blog/controllers/articles"
-	"github.com/Sekarfo/P_blog/controllers/users"
-	"github.com/Sekarfo/P_blog/middleware"
-	log "github.com/sirupsen/logrus"
-	"golang.org/x/time/rate"
 	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/Sekarfo/P_blog/controllers/articles"
+	"github.com/Sekarfo/P_blog/controllers/blogs"
+	"github.com/Sekarfo/P_blog/controllers/users"
+	"github.com/Sekarfo/P_blog/middleware"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 
 	"github.com/gorilla/mux"
 )
@@ -32,9 +34,10 @@ func ProfileHandler() http.HandlerFunc {
 }
 
 // NEW ROUTES
-func SetupRouter2(
+func SetupRouter(
 	usersC *users.Controller,
 	articlesC *articles.Controller,
+	blogsC *blogs.Controller,
 ) *mux.Router {
 	router := mux.NewRouter()
 
@@ -53,11 +56,8 @@ func SetupRouter2(
 	})
 
 	router.HandleFunc("/api/users", usersC.CreateUser).Methods("POST")
-
 	router.HandleFunc("/api/articles", articlesC.FetchArticles).Methods("GET")
-
-	staticDir := http.Dir("./static/")
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(staticDir)))
+	router.HandleFunc("/verify-email", usersC.VerifyEmail).Methods("GET")
 
 	// Home route serving home.html
 	router.HandleFunc("/", HomeHandler()).Methods("GET")
@@ -72,10 +72,10 @@ func SetupRouter2(
 
 	// Profile API route
 	router.HandleFunc("/api/profile", usersC.GetProfile).Methods("GET")
-
 	router.HandleFunc("/api/profile", usersC.UpdateProfile).Methods("PUT")
 
 	router.HandleFunc("/api/support", usersC.SendSupportRequest).Methods("POST")
+	router.HandleFunc("/api/blogs", blogsC.CreateBlog).Methods("POST")
 
 	return router
 }

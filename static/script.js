@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert(data.message || 'Invalid credentials');
                     }
                 } else {
-                    alert('Invalid email or password');
+                    alert('Invalid email/password or Email not Verified');
                 }
             } catch (error) {
                 console.error('Error:', error);
