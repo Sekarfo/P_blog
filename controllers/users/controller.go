@@ -65,9 +65,15 @@ func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	// Send to service
 	user, err := c.usersService.LoginUser(email, password)
+
+	if !user.EmailVerified {
+		log.Println("Email not verified for email:", email)
+		http.Error(w, "Email not verified. Please check your email for the verification link.", http.StatusUnauthorized)
+		return
+	}
 	if err != nil {
 		log.Println("Invalid login attempt for email:", email)
-		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		http.Error(w, "Invalid email/password or  Check your email for verification", http.StatusUnauthorized)
 		return
 	}
 

@@ -62,7 +62,7 @@ func NewApp() (*App, error) {
 }
 
 func (a *App) Run() error {
-	return http.ListenAndServe(":8080", a.httpH)
+	return http.ListenAndServe(":8081", a.httpH)
 }
 
 func (a *App) initEnvs() error {
