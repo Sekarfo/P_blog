@@ -13,7 +13,7 @@ func SendVerificationEmail(to, token string) {
 	smtpPass := os.Getenv("SMTP_PASSWORD")
 	smtpFrom := os.Getenv("SMTP_FROM")
 
-	verificationURL := fmt.Sprintf("http://localhost:8080/verify?token=%s", token)
+	verificationURL := fmt.Sprintf("https://p-blog-1wca.onrender.com/verify?token=%s", token)
 
 	subject := "Verify Your Email"
 	body := fmt.Sprintf("Click the link below to verify your email:\n\n%s", verificationURL)
