@@ -1,0 +1,277 @@
+/* Reset and Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+
+body {
+    background-color: #FFFDF8;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header Styles */
+header {
+    background-color: #FFFDF8;
+    border-bottom: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header h1 {
+    font-size: 1.8em;
+    color: #222;
+    font-weight: 600;
+}
+
+/* Navigation */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #666;
+    font-size: 1em;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #000;
+}
+
+/* Profile Button and Dropdown Styles */
+.profile-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.profile-button img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    display: none;
+    min-width: 150px;
+}
+
+.dropdown-menu li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.dropdown-menu li:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f4f4f4;
+}
+
+/* Show Dropdown */
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Main Content */
+main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.section-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    font-size: 1.2em;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+.card p {
+    color: #555;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #222;
+    color: #fff;
+    padding: 8px 12px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #444;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #FFFDF8;
+    border-top: 1px solid #ddd;
+    color: #666;
+    margin-top: 38vh;
+}
+
+/* filepath: /c:/Users/Ansar/Desktop/reado/public/styles.css */
+.floating-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 1000;
+}
+
+.floating-notification.show {
+    opacity: 1;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.article-content {
+    margin-bottom: 20px;
+}
+
+.article-title {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.article-author {
+    font-size: 1.2em;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.article-body p {
+    margin-bottom: 20px;
+}
+
+/* Pagination Controls */
+#paginationControls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+#paginationControls button {
+    padding: 8px 12px;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#paginationControls button:hover:not(:disabled) {
+    background-color: #444;
+}
+
+#paginationControls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#currentPage {
+    font-size: 1.2em;
+    color: #333;
+}
+
+/* Floating Notification */
+.floating-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 1000;
+}
+
+.floating-notification.show {
+    opacity: 1;
+}

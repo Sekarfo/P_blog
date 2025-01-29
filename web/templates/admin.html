@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Admin Panel</title>
+</head>
+<body>
+<header>
+    <h1>Admin Panel</h1>
+    <nav>
+        <a href="posts.html">Posts</a>
+        <a href="/logout">Logout</a>
+    </nav>
+</header>
+<main>
+    <section>
+        <h2>User Management</h2>
+        <div class="filters">
+            <label for="searchUser">Search User:</label>
+            <input type="text" id="searchUser" placeholder="Enter name or email" />
+            <button onclick="filterUsers()">Search</button>
+        </div>
+        <table id="userTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- User rows will be dynamically added here -->
+            </tbody>
+        </table>
+        <div id="paginationControls">
+            <button id="prevPage" disabled>Previous</button>
+            <span id="currentPage">1</span>
+            <button id="nextPage">Next</button>
+        </div>
+    </section>
+</main>
+<script src="../static/admin.js"></script>
+</body>
+</html>
