@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Post Details</title>
+</head>
+<body>
+    <h1 id="postTitle"></h1>
+    <p id="postContent"></p>
+    <p>By: <span id="postAuthor"></span></p>
+    <p>Likes: <span id="postLikes">0</span></p>
+    <button id="likeButton">Like</button>
+    <button id="unlikeButton">Unlike</button>
+
+    <section>
+        <h2>Comments</h2>
+        <ul id="commentsList"></ul>
+        <form id="commentForm">
+            <textarea id="commentContent" placeholder="Write your comment..." required></textarea>
+            <button type="submit">Add Comment</button>
+        </form>
+    </section>
+
+    <script src="/static/post.js"></script>
+</body>
+</html>
