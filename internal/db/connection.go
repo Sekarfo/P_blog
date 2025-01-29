@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/hitpads/reado_ap/internal/models"
+	"github.com/joho/godotenv"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -13,10 +14,10 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatalf("Error loading .env file")
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
 	dsn := os.Getenv("DATABASE_URL")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
