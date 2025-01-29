@@ -31,5 +31,22 @@ func ConnectDB() {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
+	seedRoles()
+
 	log.Println("Database connected and migrations applied successfully!")
+}
+
+func seedRoles() {
+	defaultRoles := []string{"Admin", "Writer", "Reader"}
+	for _, roleName := range defaultRoles {
+		var role models.Role
+		if err := DB.Where("name = ?", roleName).First(&role).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				DB.Create(&models.Role{Name: roleName})
+				log.Printf("Role %s created", roleName)
+			} else {
+				log.Printf("Error checking role %s: %v", roleName, err)
+			}
+		}
+	}
 }
