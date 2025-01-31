@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreatePost(t *testing.T) {
-	// Start ChromeDriver
+	// ChromeDriver
 	opts := []selenium.ServiceOption{}
 	service, err := selenium.NewChromeDriverService("chromedriver", 4444, opts...)
 	if err != nil {
@@ -16,7 +16,7 @@ func TestCreatePost(t *testing.T) {
 	}
 	defer service.Stop()
 
-	// Create WebDriver
+	// WebDriver
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	wd, err := selenium.NewRemote(caps, "http://localhost:4444/wd/hub")
 	if err != nil {
@@ -24,12 +24,12 @@ func TestCreatePost(t *testing.T) {
 	}
 	defer wd.Quit()
 
-	// Navigate to login page
+	// login page
 	if err := wd.Get("http://localhost:8080/login.html"); err != nil {
 		t.Fatalf("Error navigating to login page: %v", err)
 	}
 
-	// Log in
+	// login
 	emailElem, err := wd.FindElement(selenium.ByID, "email")
 	if err != nil {
 		t.Fatalf("Error finding email input: %v", err)
@@ -38,23 +38,27 @@ func TestCreatePost(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error finding password input: %v", err)
 	}
-	loginButtonElem, err := wd.FindElement(selenium.ByID, "loginButton")
+	loginButtonElem, err := wd.FindElement(selenium.ByID, "submitLogin")
 	if err != nil {
 		t.Fatalf("Error finding login button: %v", err)
 	}
 
-	emailElem.SendKeys("admin@example.com")
-	passwordElem.SendKeys("password123")
+	emailElem.SendKeys("ansarsh1243@gmail.com")
+	passwordElem.SendKeys("admin")
 	loginButtonElem.Click()
 
-	time.Sleep(2 * time.Second) // Wait for login
+	// wait for login
+	wd.WaitWithTimeout(func(wd selenium.WebDriver) (bool, error) {
+		_, err := wd.FindElement(selenium.ByID, "homeBtn")
+		return err == nil, nil
+	}, 5*time.Second)
 
-	// Navigate to create post page
+	// create post page
 	if err := wd.Get("http://localhost:8080/posts.html"); err != nil {
 		t.Fatalf("Error navigating to posts page: %v", err)
 	}
 
-	// Fill out form and submit
+	// find ids and submit keys
 	titleElem, err := wd.FindElement(selenium.ByID, "postTitle")
 	if err != nil {
 		t.Fatalf("Error finding post title input: %v", err)
@@ -63,33 +67,37 @@ func TestCreatePost(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error finding post content input: %v", err)
 	}
-	submitButtonElem, err := wd.FindElement(selenium.ByID, "submitPost")
+	submitButtonElem, err := wd.FindElement(selenium.ByCSSSelector, "button[type='submit']")
 	if err != nil {
 		t.Fatalf("Error finding submit button: %v", err)
 	}
 
-	titleElem.SendKeys("Test Post")
+	title := "EXAMPLE TEST TITLE"
+
+	titleElem.SendKeys(title)
 	contentElem.SendKeys("This is a test post.")
 	submitButtonElem.Click()
 
-	time.Sleep(2 * time.Second) // Wait for post creation
-
-	// Verify post in list
-	posts, err := wd.FindElements(selenium.ByClassName, "post-title")
-	if err != nil {
-		t.Fatalf("Error finding posts: %v", err)
-	}
-
-	found := false
-	for _, post := range posts {
-		text, _ := post.Text()
-		if text == "Test Post" {
-			found = true
-			break
+	// wait for the new post to appear
+	err = wd.WaitWithTimeout(func(wd selenium.WebDriver) (bool, error) {
+		// check the DOM for the post title
+		script := `
+			const posts = document.querySelectorAll('#postList li h3 a');
+			for (const post of posts) {
+				if (post.textContent === arguments[0]) {
+					return true;
+				}
+			}
+			return false;
+		`
+		result, err := wd.ExecuteScript(script, []interface{}{title})
+		if err != nil {
+			return false, nil // script failed
 		}
-	}
+		return result.(bool), nil
+	}, 10*time.Second)
 
-	if !found {
-		t.Error("Created post not found in the list")
+	if err != nil {
+		t.Fatalf("Post titled '%s' was not found in the list: %v", title, err)
 	}
 }

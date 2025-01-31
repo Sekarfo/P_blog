@@ -37,8 +37,8 @@ async function fetchPosts() {
             postList.appendChild(li); // Add the post to the list
         });
     } catch (err) {
-        console.error(err); // Log the error
-        alert("Error: " + err.message); // Display an alert if something goes wrong
+        console.error(err); // Log
+        alert("Error: " + err.message);
     }
 }
 
