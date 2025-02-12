@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/smtp"
 	"os"
+	"strings"
 
 	"auth-service/middleware"
 	"auth-service/models"
@@ -22,9 +23,19 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
 	}
 
-	// Hash password
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	// Print raw password before hashing
+	fmt.Println("DEBUG: Raw password before hashing:", user.Password)
+	fmt.Println("DEBUG: Byte representation of raw password:", []byte(user.Password))
+
+	// Hash password correctly
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(strings.TrimSpace(user.Password)), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to hash password"})
+	}
 	user.Password = string(hashedPassword)
+
+	// Print hashed password before saving
+	fmt.Println("DEBUG: Hashed password before saving:", user.Password)
 
 	// Assign default role
 	user.RoleID = 2 // 'Reader' role
@@ -50,22 +61,36 @@ func Login(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
 	}
 
+	// Debug: Print received email
+	fmt.Println("DEBUG: Received email:", input.Email)
+
 	var user models.User
-	err := database.DB.Where("email = ?", input.Email).First(&user).Error
+	err := database.DB.Where("LOWER(email) = LOWER(?)", input.Email).First(&user).Error
 	if err != nil {
+		fmt.Println("DEBUG: User not found in database")
 		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
+
+	fmt.Println("DEBUG: Raw input password:", input.Password)
+	fmt.Println("DEBUG: Byte representation:", []byte(input.Password))
+	fmt.Println("DEBUG: Stored Hash:", user.Password)
 
 	// Ensure email is verified before allowing login
 	if !user.IsEmailVerified {
+		fmt.Println("DEBUG: Email is not verified")
 		return c.Status(403).JSON(fiber.Map{"error": "Email not verified. Please check your inbox."})
 	}
 
-	// Validate password
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	// Trim spaces and compare stored hash with input password
+	cleanInputPassword := strings.TrimSpace(input.Password)
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(cleanInputPassword))
 	if err != nil {
+		fmt.Println("DEBUG: Password mismatch. Input:", cleanInputPassword, "| Stored Hash:", user.Password)
 		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
+
+	// Debug: Print successful login
+	fmt.Println("DEBUG: Login successful for user:", user.Email)
 
 	// Generate JWT token
 	token, _ := middleware.GenerateToken(user.ID, user.RoleID)
@@ -127,7 +152,10 @@ func ResetPassword(c *fiber.Ctx) error {
 	}
 
 	// Hash new password
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(strings.TrimSpace(input.NewPassword)), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to hash new password"})
+	}
 
 	// Update user password and clear reset token
 	database.DB.Model(&user).Updates(map[string]interface{}{

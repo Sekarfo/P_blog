@@ -1,6 +1,7 @@
-package utils
+package tests
 
 import (
+	"github.com/hitpads/reado_ap/internal/utils"
 	"testing"
 )
 
@@ -8,7 +9,7 @@ import (
 
 func TestHashPassword(t *testing.T) {
 	password := "securepassword"
-	hashedPassword, err := HashPassword(password)
+	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
 		t.Fatalf("Failed to hash password: %v", err)
 	}
@@ -21,15 +22,15 @@ func TestHashPassword(t *testing.T) {
 
 func TestComparePasswords(t *testing.T) {
 	password := "securepassword"
-	hashedPassword, _ := HashPassword(password)
+	hashedPassword, _ := utils.HashPassword(password)
 
 	// Compare matching passwords
-	if err := ComparePasswords(hashedPassword, password); err != nil {
+	if err := utils.ComparePasswords(hashedPassword, password); err != nil {
 		t.Errorf("Passwords should match, but got error: %v", err)
 	}
 
 	// Compare non-matching passwords
-	if err := ComparePasswords(hashedPassword, "wrongpassword"); err == nil {
+	if err := utils.ComparePasswords(hashedPassword, "wrongpassword"); err == nil {
 		t.Error("Passwords should not match, but no error returned")
 	}
 }
