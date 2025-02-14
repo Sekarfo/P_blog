@@ -29,33 +29,37 @@ func (h *SubscriptionHandler) RequestSubscription(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to request subscription"})
 	}
 
-	return c.Status(201).JSON(subscription)
+	// ✅ Ensure subscription_id is included in response
+	return c.Status(201).JSON(fiber.Map{
+		"subscription_id": subscription.ID,
+		"message":         "Subscription request successful!",
+	})
 }
 
-func (h *SubscriptionHandler) GetPendingSubscriptions(c *fiber.Ctx) error {
-	subscriptions, err := h.Service.GetPendingSubscriptions()
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch pending subscriptions"})
-	}
+// func (h *SubscriptionHandler) GetPendingSubscriptions(c *fiber.Ctx) error {
+// 	subscriptions, err := h.Service.GetPendingSubscriptions()
+// 	if err != nil {
+// 		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch pending subscriptions"})
+// 	}
 
-	response := []map[string]interface{}{}
-	for _, sub := range subscriptions {
-		var user models.User
-		if err := db.DB.First(&user, sub.UserID).Error; err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch user details"})
-		}
+// 	response := []map[string]interface{}{}
+// 	for _, sub := range subscriptions {
+// 		var user models.User
+// 		if err := db.DB.First(&user, sub.UserID).Error; err != nil {
+// 			return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch user details"})
+// 		}
 
-		response = append(response, map[string]interface{}{
-			"id":           sub.ID,
-			"user_id":      sub.UserID,
-			"user_name":    user.Name, // ✅ Include user name
-			"status":       sub.Status,
-			"requested_at": sub.RequestedAt,
-		})
-	}
+// 		response = append(response, map[string]interface{}{
+// 			"id":           sub.ID,
+// 			"user_id":      sub.UserID,
+// 			"user_name":    user.Name, // ✅ Include user name
+// 			"status":       sub.Status,
+// 			"requested_at": sub.RequestedAt,
+// 		})
+// 	}
 
-	return c.JSON(response)
-}
+// 	return c.JSON(response)
+// }
 
 func (h *SubscriptionHandler) ApproveSubscription(c *fiber.Ctx) error {
 	idParam := c.Params("id")
@@ -87,6 +91,35 @@ func (h *SubscriptionHandler) RejectSubscription(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Subscription rejected successfully"})
 }
 
+func (h *SubscriptionHandler) GetAllSubscriptions(c *fiber.Ctx) error {
+	subscriptions, err := h.Service.GetAllSubscriptions() // ✅ Now correctly linked
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch subscriptions"})
+	}
+
+	response := []map[string]interface{}{}
+	for _, sub := range subscriptions {
+		var user models.User
+		if err := db.DB.First(&user, sub.UserID).Error; err != nil {
+			log.Printf("Failed to fetch user details for subscription %d: %v", sub.ID, err)
+			continue // Skip this entry instead of failing the entire request
+		}
+
+		response = append(response, map[string]interface{}{
+			"id":                 sub.ID,
+			"user_id":            sub.UserID,
+			"user_name":          user.Name,
+			"status":             sub.Status,
+			"requested_at":       sub.RequestedAt,
+			"approved_at":        sub.ApprovedAt,
+			"subscription_start": sub.SubscriptionStart,
+			"subscription_end":   sub.SubscriptionEnd,
+		})
+	}
+
+	return c.JSON(response)
+}
+
 // PAYMENT
 
 func (h *SubscriptionHandler) ProcessPayment(c *fiber.Ctx) error {
@@ -99,16 +132,19 @@ func (h *SubscriptionHandler) ProcessPayment(c *fiber.Ctx) error {
 		SubscriptionID uint   `json:"subscription_id"`
 	}
 
+	log.Printf("Received payment request: %s", string(c.Body())) // Debugging log
+
 	if err := c.BodyParser(&payment); err != nil {
+		log.Printf("Failed to parse payment data: %v", err) // Debugging log
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid payment data"})
 	}
 
-	// Mock Payment Validation (if card starts with '4' → success, otherwise fail)
-	success := strings.HasPrefix(payment.CardNumber, "4")
+	// Simulate payment validation (if card starts with '4', payment is valid)
+	paymentValid := strings.HasPrefix(payment.CardNumber, "4")
 
-	status := "declined"
-	if success {
-		status = "paid"
+	status := "rejected"
+	if paymentValid {
+		status = "pending_approval" // ✅ Mark as "pending_approval", not "paid"
 	}
 
 	// Update subscription status in the database
@@ -116,5 +152,5 @@ func (h *SubscriptionHandler) ProcessPayment(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update subscription status"})
 	}
 
-	return c.JSON(fiber.Map{"payment_success": success})
+	return c.JSON(fiber.Map{"payment_success": paymentValid})
 }

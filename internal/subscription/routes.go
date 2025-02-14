@@ -16,9 +16,12 @@ func SetupRoutes(app *fiber.App) {
 
 	api := app.Group("/api/subscriptions")
 	api.Post("/subscribe", handler.RequestSubscription)
-	api.Get("/admin/pending", handler.GetPendingSubscriptions)
+	// api.Get("/admin/pending", handler.GetPendingSubscriptions)
 	api.Patch("/admin/approve/:id", handler.ApproveSubscription)
 	api.Patch("/admin/reject/:id", handler.RejectSubscription)
+
+	api.Post("/payment", handler.ProcessPayment)
+	api.Get("/admin/subscriptions", handler.GetAllSubscriptions)
 
 	log.Println("Subscription routes initialized successfully")
 }

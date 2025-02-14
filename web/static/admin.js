@@ -1,9 +1,9 @@
 async function fetchSubscriptions() {
     try {
-        const response = await fetch("http://localhost:8081/api/subscriptions/admin/pending", {
+        const response = await fetch("http://localhost:8081/api/subscriptions/admin/subscriptions", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
-                "Cache-Control": "no-cache, no-store, must-revalidate" // Prevents Chrome from caching old data
+                "Cache-Control": "no-cache, no-store, must-revalidate"
             }
         });
 
@@ -13,44 +13,51 @@ async function fetchSubscriptions() {
         }
 
         const subscriptions = await response.json();
-        console.log("Subscriptions received:", subscriptions); // Debugging log
+        console.log("Subscriptions received:", subscriptions);
 
         const table = document.getElementById("subscriptionTable");
         if (!table) {
-            console.error("Subscription table not found in the DOM.");
+            console.error("Subscription table not found.");
             return;
         }
 
-        table.innerHTML = "";
+        table.innerHTML = `<tr>
+            <th>User</th>
+            <th>Status</th>
+            <th>Requested At</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Actions</th>
+        </tr>`;
 
         if (subscriptions.length === 0) {
-            console.warn("No pending subscriptions found.");
-            table.innerHTML = "<tr><td colspan='3'>No pending subscription requests.</td></tr>";
+            table.innerHTML += "<tr><td colspan='6'>No subscriptions found.</td></tr>";
             return;
         }
 
         subscriptions.forEach(sub => {
-            console.log("Checking subscription:", sub); // ✅ Debugging log
-        
             if (!sub.id) {
                 console.error("Subscription ID is undefined:", sub);
                 return;
             }
-        
+
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>${sub.user_id} - ${sub.user_name}</td>  <!-- ✅ Updated -->
+                <td>${sub.user_id} - ${sub.user_name}</td>
+                <td>${sub.status}</td>
                 <td>${new Date(sub.requested_at).toLocaleString()}</td>
+                <td>${sub.subscription_start ? new Date(sub.subscription_start).toLocaleDateString() : "N/A"}</td>
+                <td>${sub.subscription_end ? new Date(sub.subscription_end).toLocaleDateString() : "N/A"}</td>
                 <td>
-                    <button class="approve-btn" data-id="${sub.id}">Approve</button>
-                    <button class="reject-btn" data-id="${sub.id}">Reject</button>
+                    ${sub.status === "pending_approval" ? `
+                        <button class="approve-btn" data-id="${sub.id}">Approve</button>
+                        <button class="reject-btn" data-id="${sub.id}">Reject</button>
+                    ` : "N/A"}
                 </td>
             `;
             table.appendChild(row);
         });
-        
 
-        // ✅ Attach event listeners dynamically after table update
         document.querySelectorAll(".approve-btn").forEach(button => {
             button.addEventListener("click", function () {
                 const id = this.getAttribute("data-id");
@@ -71,14 +78,35 @@ async function fetchSubscriptions() {
     }
 }
 
+
+
 async function approveSubscription(id) {
-    await fetch(`http://localhost:8081/api/subscriptions/admin/approve/${id}`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-    });
-    alert("Subscription approved!");
-    fetchSubscriptions();
+    try {
+        console.log(`Approving subscription ID: ${id}`); // ✅ Debugging log
+
+        const response = await fetch(`http://localhost:8081/api/subscriptions/admin/approve/${id}`, {
+            method: "PATCH",
+            headers: { 
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        const result = await response.text(); // Get full response text
+        console.log("Approve response:", result); // ✅ Debugging log
+
+        if (!response.ok) {
+            throw new Error("Failed to approve subscription.");
+        }
+
+        alert("✅ Subscription approved! Email with receipt will be sent.");
+        fetchSubscriptions(); // Refresh subscription list
+    } catch (error) {
+        console.error("❌ Error approving subscription:", error);
+        alert("❌ Error approving subscription.");
+    }
 }
+
 
 async function rejectSubscription(id) {
     await fetch(`http://localhost:8081/api/subscriptions/admin/reject/${id}`, {

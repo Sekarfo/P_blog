@@ -30,10 +30,10 @@ func (repo *SubscriptionRepository) CreateSubscription(userID uint) (*Subscripti
 	return &subscription, nil
 }
 
-func (repo *SubscriptionRepository) GetPendingSubscriptions() ([]Subscription, error) {
+func (repo *SubscriptionRepository) GetAllSubscriptions() ([]Subscription, error) {
 	var subscriptions []Subscription
-	if err := repo.DB.Where("status = ?", "pending").Find(&subscriptions).Error; err != nil {
-		log.Println("Error fetching pending subscriptions:", err)
+	if err := repo.DB.Find(&subscriptions).Error; err != nil {
+		log.Println("Error fetching all subscriptions:", err)
 		return nil, err
 	}
 	return subscriptions, nil
@@ -42,7 +42,7 @@ func (repo *SubscriptionRepository) GetPendingSubscriptions() ([]Subscription, e
 func (repo *SubscriptionRepository) ApproveSubscription(id uint) error {
 	var subscription Subscription
 	if err := repo.DB.First(&subscription, id).Error; err != nil {
-		log.Printf("Subscription ID %d not found\n", id)
+		log.Printf("❌ Subscription ID %d not found\n", id)
 		return errors.New("subscription not found")
 	}
 
@@ -50,14 +50,15 @@ func (repo *SubscriptionRepository) ApproveSubscription(id uint) error {
 	subscription.Status = "approved"
 	subscription.ApprovedAt = &now
 	subscription.SubscriptionStart = &now
-	expiry := now.AddDate(0, 1, 0) // 1-month premium duration
+	expiry := now.AddDate(0, 1, 0) // 1-month subscription
 	subscription.SubscriptionEnd = &expiry
 
 	if err := repo.DB.Save(&subscription).Error; err != nil {
-		log.Printf("Error saving approved subscription ID %d: %v\n", id, err)
+		log.Printf("❌ Error saving approved subscription ID %d: %v\n", id, err)
 		return err
 	}
-	log.Printf("Subscription ID %d approved, expiry on %s\n", id, expiry.Format("2006-01-02"))
+
+	log.Printf("✅ Subscription ID %d approved, expiry on %s\n", id, expiry.Format("2006-01-02"))
 	return nil
 }
 

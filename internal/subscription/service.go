@@ -26,47 +26,43 @@ func (s *SubscriptionService) RequestSubscription(userID uint) (*Subscription, e
 	return subscription, nil
 }
 
-func (s *SubscriptionService) GetPendingSubscriptions() ([]Subscription, error) {
-	subscriptions, err := s.Repo.GetPendingSubscriptions()
-	if err != nil {
-		log.Println("Error fetching pending subscriptions:", err)
-		return nil, err
-	}
-	return subscriptions, nil
+func (s *SubscriptionService) GetAllSubscriptions() ([]Subscription, error) {
+	return s.Repo.GetAllSubscriptions()
 }
 
 func (s *SubscriptionService) ApproveSubscription(id uint) error {
 	err := s.Repo.ApproveSubscription(id)
 	if err != nil {
-		log.Printf("Error approving subscription with ID %d: %v\n", id, err)
+		log.Printf("❌ Error approving subscription with ID %d: %v\n", id, err)
 		return err
 	}
 
-	// Fetch approved subscription details
 	var subscription Subscription
-	if err := db.DB.First(&subscription, id).Error; err != nil {
-		log.Printf("Error fetching approved subscription ID %d: %v\n", id, err)
-		return fmt.Errorf("failed to fetch approved subscription: %w", err)
+	if err := s.Repo.GetSubscriptionByID(id, &subscription); err != nil {
+		return err
 	}
 
-	// Fetch user details
 	var user models.User
-	if err := db.DB.First(&user, "id = ?", subscription.UserID).Error; err != nil {
-		log.Printf("Error fetching user details for User ID %d: %v\n", subscription.UserID, err)
+	if err := db.DB.First(&user, subscription.UserID).Error; err != nil {
+		log.Printf("❌ Error fetching user details for subscription ID %d: %v\n", id, err)
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	expiryDate := subscription.SubscriptionEnd.Format("2006-01-02")
-	log.Printf("User ID %d subscription approved. Expiry: %s\n", subscription.UserID, expiryDate)
-
-	// Send email notification
-	err = SendApprovalEmail(user.Email, expiryDate)
+	transactionID := fmt.Sprintf("%d", subscription.ID)
+	receiptPath, err := GenerateReceipt(transactionID, user.Email, subscription.SubscriptionEnd.Format("2006-01-02"))
 	if err != nil {
-		log.Printf("Failed to send approval email to %s: %v\n", user.Email, err)
 		return err
 	}
 
-	log.Printf("Approval email sent to %s successfully.\n", user.Email)
+	log.Printf("✅ Generated receipt saved at: %s", receiptPath)
+
+	err = SendApprovalEmail(user.Email, subscription.SubscriptionEnd.Format("2006-01-02"), transactionID)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("✅ Subscription for user %s approved until %s\n", user.Email, subscription.SubscriptionEnd.Format("2006-01-02"))
+
 	return nil
 }
 

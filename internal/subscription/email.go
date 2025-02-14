@@ -1,15 +1,28 @@
 package subscription
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"log"
+	"mime/multipart"
 	"net/smtp"
+	"net/textproto"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
-// Sends an approval email with the subscription expiry date
-func SendApprovalEmail(userEmail string, expiryDate string) error {
-	log.Printf("Sending approval email to: %s | Expiry Date: %s\n", userEmail, expiryDate)
+func SendApprovalEmail(userEmail, expiryDate, transactionID string) error {
+	log.Printf("📧 Sending receipt email to: %s (Expiry: %s)\n", userEmail, expiryDate)
+
+	receiptPath, err := GenerateReceipt(transactionID, userEmail, expiryDate)
+	if err != nil {
+		log.Printf("❌ Failed to generate receipt: %v\n", err)
+		return fmt.Errorf("failed to generate receipt: %w", err)
+	}
+
+	log.Printf("✅ Receipt generated: %s\n", receiptPath)
 
 	from := os.Getenv("SMTP_USERNAME")
 	password := os.Getenv("SMTP_PASSWORD")
@@ -18,36 +31,84 @@ func SendApprovalEmail(userEmail string, expiryDate string) error {
 	smtpHost := os.Getenv("SMTP_HOST")
 	smtpPort := os.Getenv("SMTP_PORT")
 
-	message := []byte(fmt.Sprintf("Subject: Subscription Approved\n\nYour subscription has been approved! It expires on %s.", expiryDate))
-
-	auth := smtp.PlainAuth("", from, password, smtpHost)
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
+	// Read PDF file content
+	fileData, err := os.ReadFile(receiptPath)
 	if err != nil {
-		log.Printf("❌ Failed to send email to %s: %v\n", userEmail, err)
-		return err
+		log.Printf("❌ Failed to read PDF receipt: %v\n", err)
+		return fmt.Errorf("failed to read PDF receipt: %w", err)
 	}
 
-	log.Printf("✅ Email successfully sent to %s\n", userEmail)
+	// Encode file to base64
+	encoded := base64.StdEncoding.EncodeToString(fileData)
+
+	// Email Headers
+	subject := "YOU ARE NOW PREMIUM USER - Your Receipt"
+	boundary := "my-boundary"
+
+	var emailBody bytes.Buffer
+	writer := multipart.NewWriter(&emailBody)
+	writer.SetBoundary(boundary)
+
+	// Plain text message
+	headers := make(textproto.MIMEHeader)
+	headers.Set("Content-Type", "text/plain; charset=\"utf-8\"")
+	headers.Set("Content-Transfer-Encoding", "7bit")
+
+	part, err := writer.CreatePart(headers)
+	if err != nil {
+		return err
+	}
+	part.Write([]byte(fmt.Sprintf("Your subscription has been approved.\n\nYour receipt is attached.\n\nExpiry Date: %s", expiryDate)))
+
+	// Attach the PDF file
+	fileHeader := make(textproto.MIMEHeader)
+	fileHeader.Set("Content-Type", "application/pdf; name="+filepath.Base(receiptPath))
+	fileHeader.Set("Content-Disposition", "attachment; filename="+filepath.Base(receiptPath))
+	fileHeader.Set("Content-Transfer-Encoding", "base64")
+
+	part, err = writer.CreatePart(fileHeader)
+	if err != nil {
+		return err
+	}
+	part.Write([]byte(encoded))
+
+	writer.Close()
+
+	// Email message with headers
+	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=\"%s\"\r\n\r\n%s",
+		from, strings.Join(to, ","), subject, boundary, emailBody.String())
+
+	// SMTP authentication
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	// Send email
+	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(msg))
+	if err != nil {
+		log.Printf("❌ Failed to send email to %s: %v\n", userEmail, err)
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	log.Printf("✅ Email with receipt sent to %s\n", userEmail)
 	return nil
 }
 
-// Sends a rejection email to the user
 func SendRejectionEmail(userEmail string) error {
+	log.Printf("Sending rejection email to %s...", userEmail)
+
 	from := os.Getenv("SMTP_FROM")
 	password := os.Getenv("SMTP_PASSWORD")
 	to := []string{userEmail}
-
 	smtpHost := os.Getenv("SMTP_HOST")
 	smtpPort := os.Getenv("SMTP_PORT")
 
-	message := []byte("Subject: Subscription Rejected\n\nYour subscription request has been rejected. If you believe this is an error, please contact support.")
+	message := fmt.Sprintf("Subject: Payment Rejected\n\nYour payment has been rejected.")
 
 	auth := smtp.PlainAuth("", from, password, smtpHost)
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(message))
 	if err != nil {
-		log.Printf("Failed to send rejection email to %s: %v\n", userEmail, err)
-		return err
+		return fmt.Errorf("failed to send email: %w", err)
 	}
-	log.Printf("Rejection email sent to %s successfully.\n", userEmail)
+
+	log.Printf("✅ Rejection email sent to %s\n", userEmail)
 	return nil
 }
