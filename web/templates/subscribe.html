@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe to Premium</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Premium Subscription</h2>
+        <p>Subscribe to premium and unlock exclusive features!</p>
+        <button id="subscribeBtn">Request Subscription</button>
+        <p id="statusMessage"></p>
+    </div>
+
+    <script>
+        async function requestSubscription() {
+            const token = localStorage.getItem("token");
+        
+            if (!token) {
+                alert("You need to log in first.");
+                window.location.href = "/login.html";
+                return;
+            }
+    
+            try {
+                // Fetch profile from the main app (port 8080)
+                const userResponse = await fetch("http://localhost:8080/api/profile", { 
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+    
+                if (!userResponse.ok) {
+                    throw new Error("Failed to fetch user profile.");
+                }
+    
+                const user = await userResponse.json();
+                const userId = user.id; // Get the correct user ID
+        
+                // Send subscription request to the microservice (port 8081)
+                const response = await fetch(`http://localhost:8081/api/subscriptions/subscribe?user_id=${userId}`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Subscription request failed.");
+                }
+        
+                const data = await response.json();
+                document.getElementById("statusMessage").textContent = data.error || "Subscription request sent!";
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("statusMessage").textContent = "Error: " + error.message;
+            }
+        }
+        
+        document.getElementById("subscribeBtn").addEventListener("click", requestSubscription);
+    </script>
+</body>
+</html>

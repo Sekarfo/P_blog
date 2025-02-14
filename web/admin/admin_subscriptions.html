@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Manage Subscriptions</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Pending Subscription Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Requested At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="subscriptionTable">
+                <!-- Subscription requests will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchSubscriptions() {
+            const response = await fetch("/api/subscriptions/admin/pending");
+            const subscriptions = await response.json();
+            const table = document.getElementById("subscriptionTable");
+
+            table.innerHTML = ""; // Clear previous data
+
+            subscriptions.forEach(sub => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${sub.user_id}</td>
+                    <td>${new Date(sub.requested_at).toLocaleString()}</td>
+                    <td>
+                        <button onclick="approveSubscription(${sub.id})">Approve</button>
+                        <button onclick="rejectSubscription(${sub.id})">Reject</button>
+                    </td>
+                `;
+
+                table.appendChild(row);
+            });
+        }
+
+        async function approveSubscription(id) {
+            await fetch(`/api/subscriptions/admin/approve/${id}`, { method: "PATCH" });
+            alert("Subscription approved!");
+            fetchSubscriptions();
+        }
+
+        async function rejectSubscription(id) {
+            await fetch(`/api/subscriptions/admin/reject/${id}`, { method: "PATCH" });
+            alert("Subscription rejected!");
+            fetchSubscriptions();
+        }
+
+        fetchSubscriptions(); // Load subscriptions on page load
+    </script>
+</body>
+</html>
