@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/hitpads/reado_ap/internal/auth"
 	"github.com/hitpads/reado_ap/internal/db"
 	"github.com/hitpads/reado_ap/internal/models"
 	"github.com/hitpads/reado_ap/internal/utils"
@@ -97,6 +98,33 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"token": token,
 		"role":  user.Role.Name,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// GetProfile fetches the current logged-in user's profile
+func GetProfile(w http.ResponseWriter, r *http.Request) {
+	// Extract user ID from context
+	userID, ok := r.Context().Value(auth.UserIDKey).(uint)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var user models.User
+	// ✅ Fix: Preload the "Role" relationship to fetch role data
+	if err := db.DB.Preload("Role").First(&user, userID).Error; err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	response := map[string]interface{}{
+		"id":    user.ID,
+		"name":  user.Name,
+		"email": user.Email,
+		"role":  user.Role.Name, // ✅ Fix: Send only the role name instead of the full Role object
 	}
 
 	w.Header().Set("Content-Type", "application/json")

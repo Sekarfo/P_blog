@@ -18,8 +18,8 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
-	r.Handle("/*", http.FileServer(http.Dir("./web/templates")))
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("../web/static"))))
+	r.Handle("/*", http.FileServer(http.Dir("../web/templates")))
 
 	// Public Routes
 	r.Post("/register", users.RegisterHandler)
@@ -63,6 +63,8 @@ func main() {
 			w.Write([]byte("Profile page - User authenticated!"))
 		})
 	})
+
+	r.With(auth.AuthMiddleware).Get("/api/profile", users.GetProfile) // ✅ Add authentication middleware
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {

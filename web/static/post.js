@@ -56,7 +56,6 @@ async function fetchPostDetails() {
     }
 }
 
-
 async function fetchComments() {
     const token = localStorage.getItem("token");
 
@@ -85,14 +84,19 @@ async function fetchComments() {
         const commentsList = document.getElementById("commentsList");
         commentsList.innerHTML = ""; // Clear the current list
 
-        comments.forEach((comment) => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <p>${comment.content}</p>
-                <small>By: ${comment.author}, on ${new Date(comment.created).toLocaleString()}</small>
-            `;
-            commentsList.appendChild(li);
-        });
+        // Check if comments is not null or undefined
+        if (comments && comments.length > 0) {
+            comments.forEach((comment) => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <p>${comment.content}</p>
+                    <small>By: ${comment.author}, on ${new Date(comment.created).toLocaleString()}</small>
+                `;
+                commentsList.appendChild(li);
+            });
+        } else {
+            commentsList.innerHTML = "<p>No comments found for this post.</p>";
+        }
     } catch (err) {
         console.error(err);
         alert("Error: " + err.message);
@@ -111,6 +115,12 @@ async function addComment(event) {
     }
 
     const content = document.getElementById("commentContent").value;
+    //const postID = new URLSearchParams(window.location.search).get("id");
+    const postID = Number(new URLSearchParams(window.location.search).get("id"));
+
+
+    // Log the request payload
+    console.log("Adding comment with content:", content, "for post ID:", postID);
 
     try {
         const response = await fetch(`/comments`, {
@@ -119,8 +129,9 @@ async function addComment(event) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ content, post_id: postID }),
+            body: JSON.stringify({ content, post_id: Number(postID) }),
         });
+        console.log("Server error response:", errorText);
 
         if (!response.ok) {
             const errorText = await response.text();

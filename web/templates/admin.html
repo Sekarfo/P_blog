@@ -10,17 +10,19 @@
 <header>
     <h1>Admin Panel</h1>
     <nav>
-        <a href="posts.html">Posts</a>
+        <a href="#" id="userManagementLink">Manage users</a>
+        <a href="/posts.html">Home</a>
         <a href="/logout">Logout</a>
     </nav>
 </header>
 <main>
-    <section>
+    <!-- User Management Section -->
+    <section id="userManagement">
         <h2>User Management</h2>
         <div class="filters">
             <label for="searchUser">Search User:</label>
             <input type="text" id="searchUser" placeholder="Enter name or email" />
-            <button onclick="filterUsers()">Search</button>
+            <button id="searchUserBtn">Search</button>
         </div>
         <table id="userTable">
             <thead>
@@ -33,7 +35,6 @@
             </tr>
             </thead>
             <tbody>
-            <!-- User rows will be dynamically added here -->
             </tbody>
         </table>
         <div id="paginationControls">
@@ -42,7 +43,24 @@
             <button id="nextPage">Next</button>
         </div>
     </section>
+
+    <!-- Subscription Management Section -->
+    <section id="subscriptionManagement">
+        <h2>Pending Subscription Requests</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Requested At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="subscriptionTable">
+            </tbody>
+        </table>
+    </section>
 </main>
-<script src="../static/admin.js"></script>
+
+<script src="../static/admin.js" defer></script>
 </body>
 </html>
