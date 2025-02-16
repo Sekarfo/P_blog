@@ -2,10 +2,11 @@ package admin
 
 import (
 	"encoding/json"
-	"github.com/hitpads/reado_ap/internal/db"
-	"github.com/hitpads/reado_ap/internal/models"
 	"net/http"
 	"strconv"
+
+	"github.com/hitpads/reado_ap/internal/db"
+	"github.com/hitpads/reado_ap/internal/models"
 )
 
 type UserResponse struct {
@@ -22,7 +23,6 @@ type PaginatedResponse struct {
 	PrevPage    bool           `json:"prev_page"`
 }
 
-// GetAllUsers fetches all users and formats the response
 func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	var users []models.User
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
@@ -65,7 +65,6 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// UpdateUserRole updates a user's role
 func UpdateUserRole(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		UserID uint `json:"user_id"`

@@ -28,8 +28,8 @@ func main() {
 
 	// Admin routes
 	r.Group(func(r chi.Router) {
-		r.Use(auth.AuthMiddleware)                 // Ensure user is authenticated
-		r.Use(auth.RoleMiddleware(auth.AdminRole)) // Ensure user is admin
+		r.Use(auth.AuthMiddleware)
+		r.Use(auth.RoleMiddleware(auth.AdminRole))
 
 		r.Get("/admin/users", admin.GetAllUsers)
 		r.Patch("/admin/users/role", admin.UpdateUserRole)
@@ -64,7 +64,7 @@ func main() {
 		})
 	})
 
-	r.With(auth.AuthMiddleware).Get("/api/profile", users.GetProfile) // ✅ Add authentication middleware
+	r.With(auth.AuthMiddleware).Get("/api/profile", users.GetProfile)
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {

@@ -18,7 +18,6 @@ const (
 	RoleContextKey
 )
 
-// AuthMiddleware verifies JWTs and sets user context
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -38,14 +37,12 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Retrieve the user's role from the database
 		var user models.User
 		if err := db.DB.Preload("Role").First(&user, claims.UserID).Error; err != nil {
 			http.Error(w, "User not found", http.StatusUnauthorized)
 			return
 		}
 
-		// Add user ID and role to context
 		ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
 		ctx = context.WithValue(ctx, RoleContextKey, user.Role.Name)
 		next.ServeHTTP(w, r.WithContext(ctx))

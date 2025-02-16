@@ -17,9 +17,9 @@ func main() {
 
 	// Enable CORS
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:8080", // ✅ Allow frontend to call the microservice
+		AllowOrigins:     "http://localhost:8080",
 		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-		AllowHeaders:     "Authorization, Content-Type, Cache-Control", // ✅ Explicitly allow Cache-Control
+		AllowHeaders:     "Authorization, Content-Type, Cache-Control",
 		ExposeHeaders:    "Authorization, Content-Type",
 		AllowCredentials: true,
 	}))

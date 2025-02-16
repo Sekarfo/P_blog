@@ -14,15 +14,15 @@ import (
 )
 
 func SendApprovalEmail(userEmail, expiryDate, transactionID string) error {
-	log.Printf("📧 Sending receipt email to: %s (Expiry: %s)\n", userEmail, expiryDate)
+	log.Printf("SENDING receipt email to: %s (Expiry: %s)\n", userEmail, expiryDate)
 
 	receiptPath, err := GenerateReceipt(transactionID, userEmail, expiryDate)
 	if err != nil {
-		log.Printf("❌ Failed to generate receipt: %v\n", err)
+		log.Printf("Failed to generate receipt: %v\n", err)
 		return fmt.Errorf("failed to generate receipt: %w", err)
 	}
 
-	log.Printf("✅ Receipt generated: %s\n", receiptPath)
+	log.Printf("Receipt generated: %s\n", receiptPath)
 
 	from := os.Getenv("SMTP_USERNAME")
 	password := os.Getenv("SMTP_PASSWORD")
@@ -31,17 +31,17 @@ func SendApprovalEmail(userEmail, expiryDate, transactionID string) error {
 	smtpHost := os.Getenv("SMTP_HOST")
 	smtpPort := os.Getenv("SMTP_PORT")
 
-	// Read PDF file content
+	// Read PDF file
 	fileData, err := os.ReadFile(receiptPath)
 	if err != nil {
-		log.Printf("❌ Failed to read PDF receipt: %v\n", err)
+		log.Printf("Failed to read PDF receipt: %v\n", err)
 		return fmt.Errorf("failed to read PDF receipt: %w", err)
 	}
 
 	// Encode file to base64
 	encoded := base64.StdEncoding.EncodeToString(fileData)
 
-	// Email Headers
+	// email headers
 	subject := "YOU ARE NOW PREMIUM USER - Your Receipt"
 	boundary := "my-boundary"
 
@@ -49,7 +49,7 @@ func SendApprovalEmail(userEmail, expiryDate, transactionID string) error {
 	writer := multipart.NewWriter(&emailBody)
 	writer.SetBoundary(boundary)
 
-	// Plain text message
+	// text message
 	headers := make(textproto.MIMEHeader)
 	headers.Set("Content-Type", "text/plain; charset=\"utf-8\"")
 	headers.Set("Content-Transfer-Encoding", "7bit")
@@ -60,7 +60,7 @@ func SendApprovalEmail(userEmail, expiryDate, transactionID string) error {
 	}
 	part.Write([]byte(fmt.Sprintf("Your subscription has been approved.\n\nYour receipt is attached.\n\nExpiry Date: %s", expiryDate)))
 
-	// Attach the PDF file
+	// Attach the PDF
 	fileHeader := make(textproto.MIMEHeader)
 	fileHeader.Set("Content-Type", "application/pdf; name="+filepath.Base(receiptPath))
 	fileHeader.Set("Content-Disposition", "attachment; filename="+filepath.Base(receiptPath))
@@ -74,21 +74,19 @@ func SendApprovalEmail(userEmail, expiryDate, transactionID string) error {
 
 	writer.Close()
 
-	// Email message with headers
 	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=\"%s\"\r\n\r\n%s",
 		from, strings.Join(to, ","), subject, boundary, emailBody.String())
 
-	// SMTP authentication
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
 	// Send email
 	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(msg))
 	if err != nil {
-		log.Printf("❌ Failed to send email to %s: %v\n", userEmail, err)
+		log.Printf("Failed to send email to %s: %v\n", userEmail, err)
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 
-	log.Printf("✅ Email with receipt sent to %s\n", userEmail)
+	log.Printf("Email with receipt sent to %s\n", userEmail)
 	return nil
 }
 
